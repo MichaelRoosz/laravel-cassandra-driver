@@ -33,6 +33,8 @@ class Connection extends BaseConnection {
 
     protected Consistency $consistency = self::DEFAULT_CONSISTENCY;
 
+    protected string $keyspace;
+
     protected bool $logWarnings = true;
 
     /**
@@ -80,6 +82,7 @@ class Connection extends BaseConnection {
         // First we will setup the default properties. We keep track of the DB
         // name we are connected to since it is needed when some reflective
         // type commands are run such as checking whether a table exists.
+        $this->keyspace = $keyspace;
         $this->database = $keyspace;
 
         $this->tablePrefix = $tablePrefix;
@@ -311,7 +314,7 @@ class Connection extends BaseConnection {
      * @return string
      */
     public function getKeyspaceName() {
-        return $this->database;
+        return $this->keyspace;
     }
 
     public function getPageSize(): int {
@@ -524,7 +527,7 @@ class Connection extends BaseConnection {
      * @return $this
      */
     public function setKeyspaceName($keyspace) {
-        $this->database = $keyspace;
+        $this->keyspace = $keyspace;
 
         return $this;
     }
