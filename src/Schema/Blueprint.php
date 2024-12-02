@@ -122,6 +122,10 @@ class Blueprint extends BaseBlueprint {
             $orderBy = strtoupper($orderBy);
         }
 
+        if (!in_array($orderBy, ['ASC', 'DESC'])) {
+            throw new RuntimeException('The order by clause must be either "ASC" or "DESC".');
+        }
+
         return $this->indexCommand('clustering', $columns, $name ?? '', $orderBy);
     }
 
