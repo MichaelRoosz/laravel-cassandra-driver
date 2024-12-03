@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace LaraCassandra\Schema;
+namespace LaravelCassandraDriver\Schema;
 
 use Closure;
 use RuntimeException;
@@ -11,8 +11,8 @@ use Illuminate\Database\Schema\Builder as BaseBuilder;
 use Illuminate\Database\Connection as BaseConnection;
 use Illuminate\Database\Schema\Blueprint as BaseBlueprint;
 
-use LaraCassandra\Connection;
-use LaraCassandra\Consistency;
+use LaravelCassandraDriver\Connection;
+use LaravelCassandraDriver\Consistency;
 
 class Builder extends BaseBuilder {
     protected ?Consistency $consistency = null;

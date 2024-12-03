@@ -2,16 +2,16 @@
 
 declare(strict_types=1);
 
-namespace LaraCassandra\Events;
+namespace LaravelCassandraDriver\Events;
 
 use Cassandra\Response\Result;
-use LaraCassandra\Connection;
+use LaravelCassandraDriver\Connection;
 
 class StatementPrepared {
     /**
      * The database connection instance.
      *
-     * @var \LaraCassandra\Connection
+     * @var \LaravelCassandraDriver\Connection
      */
     public Connection $connection;
 
@@ -23,7 +23,7 @@ class StatementPrepared {
     /**
      * Create a new event instance.
      *
-     * @param  \LaraCassandra\Connection $connection
+     * @param  \LaravelCassandraDriver\Connection $connection
      * @return void
      */
     public function __construct(Connection $connection, Result $statement) {

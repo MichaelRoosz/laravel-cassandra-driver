@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace LaraCassandra;
+namespace LaravelCassandraDriver;
 
 use Illuminate\Support\ServiceProvider;
 

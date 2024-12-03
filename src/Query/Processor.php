@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace LaraCassandra\Query;
+namespace LaravelCassandraDriver\Query;
 
 use Illuminate\Database\Query\Processors\Processor as BaseProcessor;
 use Illuminate\Database\Query\Builder;

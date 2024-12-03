@@ -2,14 +2,14 @@
 
 declare(strict_types=1);
 
-namespace LaraCassandra\Query;
+namespace LaravelCassandraDriver\Query;
 
 use Closure;
 use InvalidArgumentException;
 use Illuminate\Database\Query\Builder as BaseBuilder;
 use Illuminate\Pagination\Paginator;
-use LaraCassandra\Connection;
-use LaraCassandra\Consistency;
+use LaravelCassandraDriver\Connection;
+use LaravelCassandraDriver\Consistency;
 use RuntimeException;
 
 class Builder extends BaseBuilder {

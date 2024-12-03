@@ -2,13 +2,13 @@
 
 declare(strict_types=1);
 
-namespace LaraCassandra;
+namespace LaravelCassandraDriver;
 
 use Illuminate\Database\Migrations\MigrationRepositoryInterface;
 use Illuminate\Database\ConnectionResolverInterface as Resolver;
 use Illuminate\Support\Facades\DB;
-use LaraCassandra\Query\Builder as QueryBuilder;
-use LaraCassandra\Schema\Builder as SchemaBuilder;
+use LaravelCassandraDriver\Query\Builder as QueryBuilder;
+use LaravelCassandraDriver\Schema\Builder as SchemaBuilder;
 use RuntimeException;
 
 class CassandraMigrationRepository implements MigrationRepositoryInterface {
@@ -52,7 +52,7 @@ class CassandraMigrationRepository implements MigrationRepositoryInterface {
     public function createRepository() {
         $schema = $this->getConnection()->getSchemaBuilder();
         if (!$schema instanceof SchemaBuilder) {
-            throw new RuntimeException('Schema builder must be an instance of LaraCassandra\Schema\Builder');
+            throw new RuntimeException('Schema builder must be an instance of LaravelCassandraDriver\Schema\Builder');
         }
 
         $schema->setConsistency(Consistency::ALL);
@@ -97,7 +97,7 @@ class CassandraMigrationRepository implements MigrationRepositoryInterface {
 
         $schema = $this->getConnection()->getSchemaBuilder();
         if (!$schema instanceof SchemaBuilder) {
-            throw new RuntimeException('Schema builder must be an instance of LaraCassandra\Schema\Builder');
+            throw new RuntimeException('Schema builder must be an instance of LaravelCassandraDriver\Schema\Builder');
         }
 
         $schema->setConsistency(Consistency::ALL);
@@ -114,7 +114,7 @@ class CassandraMigrationRepository implements MigrationRepositoryInterface {
         $connection = $this->resolver->connection($this->connection);
 
         if (!$connection instanceof Connection) {
-            throw new RuntimeException('Connection must be an instance of LaraCassandra\Connection');
+            throw new RuntimeException('Connection must be an instance of LaravelCassandraDriver\Connection');
         }
 
         return $connection;
@@ -161,7 +161,7 @@ class CassandraMigrationRepository implements MigrationRepositoryInterface {
 
         $builder = $this->table();
         if (!$builder instanceof QueryBuilder) {
-            throw new RuntimeException('Query builder must be an instance of LaraCassandra\Query\Builder');
+            throw new RuntimeException('Query builder must be an instance of LaravelCassandraDriver\Query\Builder');
         }
 
         $lastBatchNumber = $builder->ignoreWarnings()->max('batch') ?? 0;
@@ -310,7 +310,7 @@ class CassandraMigrationRepository implements MigrationRepositoryInterface {
     public function repositoryExists() {
         $schema = $this->getConnection()->getSchemaBuilder();
         if (!$schema instanceof SchemaBuilder) {
-            throw new RuntimeException('Schema builder must be an instance of LaraCassandra\Schema\Builder');
+            throw new RuntimeException('Schema builder must be an instance of LaravelCassandraDriver\Schema\Builder');
         }
 
         $schema->setConsistency(Consistency::ALL);
@@ -340,7 +340,7 @@ class CassandraMigrationRepository implements MigrationRepositoryInterface {
         ;
 
         if (!$builder instanceof QueryBuilder) {
-            throw new RuntimeException('Query builder must be an instance of LaraCassandra\Query\Builder');
+            throw new RuntimeException('Query builder must be an instance of LaravelCassandraDriver\Query\Builder');
         }
 
         $builder->setConsistency(Consistency::ALL);

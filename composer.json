@@ -1,19 +1,22 @@
 {
-    "name": "torecan/lara-cassandra",
+    "name": "mroosz/laravel-cassandra-driver",
     "type": "library",
     "description": "Cassandra based query builder for laravel.",
     "license": "MIT",
-    "homepage": "https://github.com/torecan/laracassandra",
+    "homepage": "https://github.com/MichaelRoosz/laravel-cassandra-driver",
     "keywords": [
         "cassandra",
         "nosql",
         "laravel",
         "database",
         "query builder",
-        "cql",
-        "lara-cass"
+        "cql"
     ],
     "authors": [
+        {
+            "name": "Michael Roosz",
+            "email": "michael.roosz@web.de"
+        },
         {
             "name": "Torecan Celik",
             "email": "torecancelik@gmail.com"
@@ -29,19 +32,19 @@
     ],
     "autoload": {
         "psr-4": {
-            "LaraCassandra\\": "src/"
+            "LaravelCassandraDriver\\": "src/"
         }
     },
     "minimum-stability": "dev",
     "prefer-stable": true,
     "require": {
         "php": ">=8.2",
-        "laravel/framework": "^11.9.2",
+        "laravel/framework": "^11.34.2",
         "mroosz/php-cassandra": "^0.8.1"
     },
     "require-dev": {
-        "friendsofphp/php-cs-fixer": "^3.58.1",
-        "phpstan/phpstan": "^1.10.67"
+        "friendsofphp/php-cs-fixer": "^3.65.0",
+        "phpstan/phpstan": "^2.0.3"
     },
     "scripts": {
         "lint": "vendor/bin/php-cs-fixer check",
@@ -52,7 +55,7 @@
     "extra": {
         "laravel": {
             "providers": [
-                "LaraCassandra\\CassandraServiceProvider"
+                "LaravelCassandraDriver\\CassandraServiceProvider"
             ]
         }
     }

@@ -1,4 +1,4 @@
-# **LaraCassandra**
+# **LaravelCassandraDriver**
 
 A Laraval database driver for Cassandra.
 
@@ -16,7 +16,7 @@ Install using composer:
 
 To support the Laravel database migration feature a custom migration service provider is needed:
 
-- LaraCassandra\CassandraMigrationServiceProvider::class
+- LaravelCassandraDriver\CassandraMigrationServiceProvider::class
 
 It must be added at the very top of the service provider list so it can correctly override the default migration service provider.
 
@@ -36,7 +36,7 @@ And add a new cassandra connection:
         'username' => env('DB_USERNAME', ''),
         'password' => env('DB_PASSWORD', ''),
         'page_size'       => env('DB_PAGE_SIZE', 5000),
-        'consistency'     => LaraCassandra\Consistency::LOCAL_ONE,
+        'consistency'     => LaravelCassandraDriver\Consistency::LOCAL_ONE,
         'timeout'         => null,
         'connect_timeout' => 5.0,
         'request_timeout' => 12.0,
@@ -64,21 +64,21 @@ or
 
 ### Supported Consistency Settings
 
-  - LaraCassandra\Consistency::ALL
-  - LaraCassandra\Consistency::ANY
-  - LaraCassandra\Consistency::EACH_QUORUM
-  - LaraCassandra\Consistency::LOCAL_ONE
-  - LaraCassandra\Consistency::LOCAL_QUORUM
-  - LaraCassandra\Consistency::LOCAL_SERIAL
-  - LaraCassandra\Consistency::ONE
-  - LaraCassandra\Consistency::TWO
-  - LaraCassandra\Consistency::THREE
-  - LaraCassandra\Consistency::QUORUM
-  - LaraCassandra\Consistency::SERIAL
+  - LaravelCassandraDriver\Consistency::ALL
+  - LaravelCassandraDriver\Consistency::ANY
+  - LaravelCassandraDriver\Consistency::EACH_QUORUM
+  - LaravelCassandraDriver\Consistency::LOCAL_ONE
+  - LaravelCassandraDriver\Consistency::LOCAL_QUORUM
+  - LaravelCassandraDriver\Consistency::LOCAL_SERIAL
+  - LaravelCassandraDriver\Consistency::ONE
+  - LaravelCassandraDriver\Consistency::TWO
+  - LaravelCassandraDriver\Consistency::THREE
+  - LaravelCassandraDriver\Consistency::QUORUM
+  - LaravelCassandraDriver\Consistency::SERIAL
 
 ## **Schema**
 
-Laravel migration features are supported (when LaraCassandra\CassandraMigrationServiceProvider is used):
+Laravel migration features are supported (when LaravelCassandraDriver\CassandraMigrationServiceProvider is used):
 
   > php artisan migrate
 

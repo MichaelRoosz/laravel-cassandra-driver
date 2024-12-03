@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace LaraCassandra;
+namespace LaravelCassandraDriver;
 
 use Closure;
 
@@ -17,7 +17,7 @@ use Illuminate\Database\QueryException;
 use Illuminate\Database\UniqueConstraintViolationException;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
-use LaraCassandra\Events\StatementPrepared;
+use LaravelCassandraDriver\Events\StatementPrepared;
 
 class Connection extends BaseConnection {
     public const DEFAULT_CONNECT_TIMEOUT = 5.0;

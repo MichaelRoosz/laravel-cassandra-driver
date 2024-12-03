@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace LaraCassandra\Query;
+namespace LaravelCassandraDriver\Query;
 
 use DateTime;
 use Illuminate\Database\Query\Grammars\Grammar as BaseGrammar;

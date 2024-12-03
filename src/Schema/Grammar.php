@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace LaraCassandra\Schema;
+namespace LaravelCassandraDriver\Schema;
 
 use RuntimeException;
 
