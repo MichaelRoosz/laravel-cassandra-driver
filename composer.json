@@ -35,16 +35,15 @@
             "LaravelCassandraDriver\\": "src/"
         }
     },
-    "minimum-stability": "dev",
     "prefer-stable": true,
     "require": {
         "php": ">=8.2",
-        "laravel/framework": "^11.34.2",
+        "laravel/framework": "^11",
         "mroosz/php-cassandra": "^0.8.1"
     },
     "require-dev": {
-        "friendsofphp/php-cs-fixer": "^3.65.0",
-        "phpstan/phpstan": "^2.0.3"
+        "friendsofphp/php-cs-fixer": "^3.75.0",
+        "phpstan/phpstan": "^2.1.17"
     },
     "scripts": {
         "lint": "vendor/bin/php-cs-fixer check",

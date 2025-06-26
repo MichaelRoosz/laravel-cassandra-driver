@@ -4,15 +4,13 @@ declare(strict_types=1);
 
 namespace LaravelCassandraDriver\Query;
 
-use DateTime;
 use Illuminate\Database\Query\Grammars\Grammar as BaseGrammar;
 use Illuminate\Database\Query\Builder as BaseBuilder;
+use Illuminate\Database\Connection as BaseConnection;
 use Illuminate\Support\Collection;
 use InvalidArgumentException;
 
 class Grammar extends BaseGrammar {
-    protected string $keyspaceName = '';
-
     /**
      * The components that make up a select clause.
      *
@@ -28,6 +26,11 @@ class Grammar extends BaseGrammar {
         'allowFiltering',
     ];
 
+    public function __construct(BaseConnection $connection) {
+        $this->setTablePrefix($connection->getTablePrefix());
+        $this->setConnection($connection);
+    }
+
     public function buildCollectionString(string $type, mixed $value): string {
 
         if (!is_array($value)) {
@@ -42,15 +45,20 @@ class Grammar extends BaseGrammar {
         if ('set' == $type || 'list' == $type) {
             $collection = collect($value)->map(
                 function ($item, $key) {
-                    return 'string' == strtolower(gettype($item)) ? "'" . $item . "'" : $item;
+                    return is_string($item) ? "'" . $item . "'" : $item;
                 }
             )->implode(', ');
         } elseif ('map' == $type) {
             $collection = collect($value)->map(
                 function ($item, $key) use ($isAssociative) {
+
+                    if (!is_scalar($item)) {
+                        throw new InvalidArgumentException('Map values should be scalar');
+                    }
+
                     if ($isAssociative === true) {
-                        $key = 'string' == strtolower(gettype($key)) ? "'" . $key . "'" : $key;
-                        $item = 'string' == strtolower(gettype($item)) ? "'" . $item . "'" : $item;
+                        $key = is_string($key) ? "'" . $key . "'" : $key;
+                        $item = is_string($item) ? "'" . $item . "'" : $item;
 
                         return $key . ':' . $item;
                     } else {
@@ -74,12 +82,7 @@ class Grammar extends BaseGrammar {
      * }> $collection
      */
     public function buildInsertCollectionParam(Collection $collection): string {
-        return $collection->map(function (mixed $collectionItem) {
-
-            if (!is_array($collectionItem)) {
-                throw new InvalidArgumentException('Collection values should be an array');
-            }
-
+        return $collection->map(function (array $collectionItem) {
             return $this->compileCollectionValues($collectionItem['type'], $collectionItem['value']);
         })->implode(', ');
     }
@@ -134,11 +137,7 @@ class Grammar extends BaseGrammar {
 
         $insertCollections = collect($insertCollection);
 
-        $insertCollectionArray = $insertCollections->mapWithKeys(function (mixed $collectionItem) {
-            if (!is_array($collectionItem)) {
-                throw new InvalidArgumentException('Collection values should be an array');
-            }
-
+        $insertCollectionArray = $insertCollections->mapWithKeys(function (array $collectionItem) {
             return [$collectionItem['column'] => $this->compileCollectionValues($collectionItem['type'], $collectionItem['value'])];
         })->all();
         //
@@ -246,12 +245,7 @@ class Grammar extends BaseGrammar {
         $updateCollections = collect($updateCollection);
 
         $updateCollectionCql = $updateCollections->map(
-            function ($collection, $key) {
-
-                if (!is_array($collection)) {
-                    throw new InvalidArgumentException('Collection values should be an array');
-                }
-
+            function (array $collection) {
                 if ($collection['operation']) {
                     return $collection['column'] . '=' . $collection['column'] . $collection['operation'] . $this->compileCollectionValues($collection['type'], $collection['value']);
                 } else {
@@ -272,24 +266,17 @@ class Grammar extends BaseGrammar {
         return 'Y-m-d\\TH:i:sO';
     }
 
-    public function getKeyspaceName(): string {
-        return $this->keyspaceName;
-    }
-
-    public function setKeyspaceName(string $keyspaceName): void {
-        $this->keyspaceName = $keyspaceName;
-    }
-
     /**
      * Wrap a table in keyword identifiers.
      *
      * @param  \Illuminate\Contracts\Database\Query\Expression|string  $table
+     * @param  string|null  $prefix
      * @return string
      */
-    public function wrapTable($table) {
+    public function wrapTable($table, $prefix = null) {
         $table = parent::wrapTable($table);
 
-        $keyspaceName = $this->getKeyspaceName();
+        $keyspaceName = $this->connection->getDatabaseName();
         if ($keyspaceName) {
             $table = $this->wrapValue($keyspaceName) . '.' . $table;
         }

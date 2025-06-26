@@ -5,9 +5,7 @@ declare(strict_types=1);
 namespace LaravelCassandraDriver;
 
 use Illuminate\Contracts\Support\DeferrableProvider;
-use Illuminate\Database\Migrations\DatabaseMigrationRepository;
 use Illuminate\Support\ServiceProvider;
-use Illuminate\Database\Migrations\MigrationRepositoryInterface;
 
 class CassandraMigrationServiceProvider extends ServiceProvider implements DeferrableProvider {
     /**

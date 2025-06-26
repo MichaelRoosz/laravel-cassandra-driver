@@ -26,9 +26,19 @@ class Builder extends BaseBuilder {
         $this->connection = $connection;
         $this->grammar = $connection->getSchemaGrammar();
 
-        $this->blueprintResolver(function (string $table, Closure $callback = null, string $prefix = '') {
+        $this->blueprintResolver(function (string $table, ?Closure $callback = null, string $prefix = '') {
             return new Blueprint($table, $callback, $prefix);
         });
+    }
+
+    /**
+     * Create a database in the schema.
+     *
+     * @param  string  $name
+     * @return bool
+     */
+    public function createDatabase($name) {
+        return $this->createKeyspace($name);
     }
 
     /**
@@ -82,6 +92,16 @@ class Builder extends BaseBuilder {
         foreach ($tables as $table) {
             $this->connection->statement('drop table if exists ' . $this->grammar->wrapTable($table));
         }
+    }
+
+    /**
+     * Drop a database from the schema if the database exists.
+     *
+     * @param  string  $name
+     * @return bool
+     */
+    public function dropDatabaseIfExists($name) {
+        return $this->dropKeyspaceIfExists($name);
     }
 
     /**

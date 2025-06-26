@@ -10,10 +10,9 @@ use Illuminate\Database\Schema\Grammars\Grammar as BaseGrammar;
 use Illuminate\Support\Fluent;
 use Illuminate\Database\Connection as BaseConnection;
 use Illuminate\Database\Schema\Blueprint as BaseBlueprint;
+use Illuminate\Database\Schema\ColumnDefinition;
 
 class Grammar extends BaseGrammar {
-    protected string $keyspaceName = '';
-
     /**
      * The possible column modifiers.
      *
@@ -22,6 +21,11 @@ class Grammar extends BaseGrammar {
     protected $modifiers = [
         'PrimaryKey', 'Static', 'Nullable',
     ];
+
+    public function __construct(BaseConnection $connection) {
+        $this->setTablePrefix($connection->getTablePrefix());
+        $this->setConnection($connection);
+    }
 
     /**
      * Compile an add column command.
@@ -32,9 +36,14 @@ class Grammar extends BaseGrammar {
      */
     public function compileAdd(BaseBlueprint $blueprint, Fluent $command) {
 
+        $column = $command->value('column');
+        if (!($column instanceof ColumnDefinition)) {
+            throw new RuntimeException('Column must be a ColumnDefinition object.');
+        }
+
         return sprintf('alter table %s add %s',
             $this->wrapTable($blueprint),
-            $this->getColumn($blueprint, $command->column)
+            $this->getColumn($blueprint, $column)
         );
     }
 
@@ -126,6 +135,11 @@ class Grammar extends BaseGrammar {
         $replicationOptions = [];
 
         foreach ($replication as $key => $value) {
+
+            if (!is_string($value) && !is_int($value) && !is_float($value)) {
+                throw new RuntimeException('replication config must be an array of strings, integers or floats.');
+            }
+
             $replicationOptions[] = "'{$key}': {$value}";
         }
 
@@ -333,24 +347,17 @@ class Grammar extends BaseGrammar {
         );
     }
 
-    public function getKeyspaceName(): string {
-        return $this->keyspaceName;
-    }
-
-    public function setKeyspaceName(string $keyspaceName): void {
-        $this->keyspaceName = $keyspaceName;
-    }
-
     /**
      * Wrap a table in keyword identifiers.
      *
      * @param  mixed  $table
+     * @param  string|null  $prefix
      * @return string
      */
-    public function wrapTable($table) {
+    public function wrapTable($table, $prefix = null) {
         $table = parent::wrapTable($table);
 
-        $keyspaceName = $this->getKeyspaceName();
+        $keyspaceName = $this->connection->getDatabaseName();
         if ($keyspaceName) {
             $table = $this->wrapValue($keyspaceName) . '.' . $table;
         }

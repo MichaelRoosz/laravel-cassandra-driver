@@ -72,7 +72,7 @@ class Builder extends BaseBuilder {
      * @param  array<string>|string  $columns
      * @param  string  $cursorName
      * @param  \Illuminate\Pagination\Cursor|string|null  $cursor
-     * @return \Illuminate\Contracts\Pagination\CursorPaginator
+     * @return \Illuminate\Contracts\Pagination\CursorPaginator<string,mixed>
      */
     public function cursorPaginate($perPage = 15, $columns = ['*'], $cursorName = 'cursor', $cursor = null) {
 
@@ -120,7 +120,7 @@ class Builder extends BaseBuilder {
      * @param  string  $pageName
      * @param  int|null  $page
      * @param  \Closure|int|null  $total
-     * @return \Illuminate\Contracts\Pagination\LengthAwarePaginator
+     * @return \Illuminate\Contracts\Pagination\LengthAwarePaginator<string,mixed>
      */
     public function paginate($perPage = 15, $columns = ['*'], $pageName = 'page', $page = null, $total = null) {
         $page = $page ?: Paginator::resolveCurrentPage($pageName);
@@ -157,7 +157,7 @@ class Builder extends BaseBuilder {
      * @param  array<string>|string  $columns
      * @param  string  $pageName
      * @param  int|null  $page
-     * @return \Illuminate\Contracts\Pagination\Paginator
+     * @return \Illuminate\Contracts\Pagination\Paginator<string,mixed>
      */
     public function simplePaginate($perPage = 15, $columns = ['*'], $pageName = 'page', $page = null) {
         throw new RuntimeException('Simple pagination is not supported by Cassandra.');

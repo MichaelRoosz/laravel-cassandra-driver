@@ -2,20 +2,17 @@
 
 A Laraval database driver for Cassandra.
 
+## **Supported Laravel Versions**
+
+- Laravel 11: supported via 11.x releases
+- Laravel 12: currently not supported - will be supported with 12.x releases in the futrue
+
 ## **Installation**
 
-Before installation:
-
-This is project is still on development progress, before add this on your project, please be sure minimum-stability variable is "dev" 
-
-> "minimum-stability": "dev",
-
 Install using composer:
-
-> composer require torecan/lara-cassandra
+`composer require mroosz/laravel-cassandra-driver`
 
 To support the Laravel database migration feature a custom migration service provider is needed:
-
 - LaravelCassandraDriver\CassandraMigrationServiceProvider::class
 
 It must be added at the very top of the service provider list so it can correctly override the default migration service provider.

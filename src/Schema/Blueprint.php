@@ -156,7 +156,7 @@ class Blueprint extends BaseBlueprint {
      * @param  int|null  $precision
      * @return \Illuminate\Database\Schema\ColumnDefinition
      */
-    public function dateTime($column, $precision = 0) {
+    public function dateTime($column, $precision = null) {
         return $this->addColumn('timestamp', $column);
     }
 
@@ -167,7 +167,7 @@ class Blueprint extends BaseBlueprint {
      * @param  int|null  $precision
      * @return \Illuminate\Database\Schema\ColumnDefinition
      */
-    public function dateTimeTz($column, $precision = 0) {
+    public function dateTimeTz($column, $precision = null) {
         return $this->addColumn('timestamp', $column);
     }
 
@@ -181,6 +181,15 @@ class Blueprint extends BaseBlueprint {
      */
     public function decimal($column, $total = 8, $places = 2) {
         return $this->addColumn('decimal', $column);
+    }
+    /**
+     * Indicate that the given fulltext index should be dropped.
+     *
+     * @param  string|array<mixed>  $index
+     * @return \Illuminate\Support\Fluent<string,mixed>
+     */
+    public function dropClustering($index) {
+        throw new RuntimeException('This database driver does not support dropping clustering indexes.');
     }
 
     /**
@@ -233,6 +242,16 @@ class Blueprint extends BaseBlueprint {
      */
     public function dropFullText($index) {
         throw new RuntimeException('This database driver does not support fulltext indexes.');
+    }
+
+    /**
+     * Indicate that the given fulltext index should be dropped.
+     *
+     * @param  string|array<mixed>  $index
+     * @return \Illuminate\Support\Fluent<string,mixed>
+     */
+    public function dropPartition($index) {
+        throw new RuntimeException('This database driver does not support dropping partition indexes.');
     }
 
     /**
@@ -656,7 +675,7 @@ class Blueprint extends BaseBlueprint {
      * @param  int|null  $precision
      * @return \Illuminate\Database\Schema\ColumnDefinition
      */
-    public function time($column, $precision = 0) {
+    public function time($column, $precision = null) {
         return $this->addColumn('time', $column);
     }
 
@@ -666,7 +685,7 @@ class Blueprint extends BaseBlueprint {
      * @param string $column
      * @return \Illuminate\Support\Fluent<string,mixed>
      */
-    public function timestamp($column, $precision = 0) {
+    public function timestamp($column, $precision = null) {
         return $this->addColumn('timestamp', $column);
     }
 
@@ -677,7 +696,7 @@ class Blueprint extends BaseBlueprint {
      * @param  int|null  $precision
      * @return \Illuminate\Database\Schema\ColumnDefinition
      */
-    public function timestampTz($column, $precision = 0) {
+    public function timestampTz($column, $precision = null) {
         return $this->addColumn('timestamp', $column);
     }
 
@@ -688,7 +707,7 @@ class Blueprint extends BaseBlueprint {
      * @param  int|null  $precision
      * @return \Illuminate\Database\Schema\ColumnDefinition
      */
-    public function timeTz($column, $precision = 0) {
+    public function timeTz($column, $precision = null) {
         return $this->addColumn('time', $column);
     }
 

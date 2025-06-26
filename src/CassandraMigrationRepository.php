@@ -46,8 +46,10 @@ class CassandraMigrationRepository implements MigrationRepositoryInterface {
 
     /**
      * Create the migration repository data store.
-     *
+     * 
      * @return void
+     *
+     * @throws RuntimeException
      */
     public function createRepository() {
         $schema = $this->getConnection()->getSchemaBuilder();
@@ -72,6 +74,8 @@ class CassandraMigrationRepository implements MigrationRepositoryInterface {
      *
      * @param  object  $migration
      * @return void
+     *
+     * @throws RuntimeException
      */
     public function delete($migration) {
 
@@ -92,6 +96,8 @@ class CassandraMigrationRepository implements MigrationRepositoryInterface {
      * Delete the migration repository data store.
      *
      * @return void
+     *
+     * @throws RuntimeException
      */
     public function deleteRepository() {
 
@@ -109,6 +115,8 @@ class CassandraMigrationRepository implements MigrationRepositoryInterface {
      * Resolve the database connection instance.
      *
      * @return Connection
+     *
+     * @throws RuntimeException
      */
     public function getConnection() {
         $connection = $this->resolver->connection($this->connection);
@@ -133,6 +141,8 @@ class CassandraMigrationRepository implements MigrationRepositoryInterface {
      * Get the last migration batch.
      *
      * @return array<mixed>
+     *
+     * @throws RuntimeException
      */
     public function getLast() {
 
@@ -142,6 +152,7 @@ class CassandraMigrationRepository implements MigrationRepositoryInterface {
 
         usort($migrations, function ($a, $b) {
 
+            /** @phpstan-ignore-next-line */
             if (!is_array($a) || !is_array($b)) {
                 throw new RuntimeException('Migration must be an array');
             }
@@ -156,6 +167,8 @@ class CassandraMigrationRepository implements MigrationRepositoryInterface {
      * Get the last migration batch number.
      *
      * @return int
+     *
+     * @throws RuntimeException
      */
     public function getLastBatchNumber() {
 
@@ -177,6 +190,8 @@ class CassandraMigrationRepository implements MigrationRepositoryInterface {
      * Get the completed migrations with their batch numbers.
      *
      * @return array<mixed>
+     *
+     * @throws RuntimeException
      */
     public function getMigrationBatches() {
 
@@ -184,6 +199,7 @@ class CassandraMigrationRepository implements MigrationRepositoryInterface {
 
         usort($migrations, function ($a, $b) {
 
+            /** @phpstan-ignore-next-line */
             if (!is_array($a) || !is_array($b)) {
                 throw new RuntimeException('Migration must be an array');
             }
@@ -203,6 +219,8 @@ class CassandraMigrationRepository implements MigrationRepositoryInterface {
      *
      * @param  int  $steps
      * @return array<mixed>
+     *
+     * @throws RuntimeException
      */
     public function getMigrations($steps) {
 
@@ -211,6 +229,7 @@ class CassandraMigrationRepository implements MigrationRepositoryInterface {
 
         usort($migrations, function ($a, $b) {
 
+            /** @phpstan-ignore-next-line */
             if (!is_array($a) || !is_array($b)) {
                 throw new RuntimeException('Migration must be an array');
             }
@@ -230,16 +249,19 @@ class CassandraMigrationRepository implements MigrationRepositoryInterface {
      *
      * @param  int  $batch
      * @return array<mixed>
+     *
+     * @throws RuntimeException
      */
     public function getMigrationsByBatch($batch) {
 
-        $migrations= $this->table()
+        $migrations = $this->table()
             ->where('batch', $batch)
             ->get()
             ->all();
 
         usort($migrations, function ($a, $b) {
 
+            /** @phpstan-ignore-next-line */
             if (!is_array($a) || !is_array($b)) {
                 throw new RuntimeException('Migration must be an array');
             }
@@ -254,6 +276,8 @@ class CassandraMigrationRepository implements MigrationRepositoryInterface {
      * Get the next migration batch number.
      *
      * @return int
+     *
+     * @throws RuntimeException
      */
     public function getNextBatchNumber() {
         return $this->getLastBatchNumber() + 1;
@@ -263,6 +287,8 @@ class CassandraMigrationRepository implements MigrationRepositoryInterface {
      * Get the completed migrations.
      *
      * @return array<mixed>
+     *
+     * @throws RuntimeException
      */
     public function getRan() {
 
@@ -270,6 +296,7 @@ class CassandraMigrationRepository implements MigrationRepositoryInterface {
 
         usort($migrations, function ($a, $b) {
 
+            /** @phpstan-ignore-next-line */
             if (!is_array($a) || !is_array($b)) {
                 throw new RuntimeException('Migration must be an array');
             }
@@ -290,6 +317,8 @@ class CassandraMigrationRepository implements MigrationRepositoryInterface {
      * @param  string  $file
      * @param  int  $batch
      * @return void
+     *
+     * @throws RuntimeException
      */
     public function log($file, $batch) {
 
@@ -306,6 +335,8 @@ class CassandraMigrationRepository implements MigrationRepositoryInterface {
      * Determine if the migration repository exists.
      *
      * @return bool
+     *
+     * @throws RuntimeException
      */
     public function repositoryExists() {
         $schema = $this->getConnection()->getSchemaBuilder();
@@ -332,6 +363,8 @@ class CassandraMigrationRepository implements MigrationRepositoryInterface {
      * Get a query builder for the migration table.
      *
      * @return \Illuminate\Database\Query\Builder
+     *
+     * @throws RuntimeException
      */
     protected function table() {
         $builder = $this->getConnection()

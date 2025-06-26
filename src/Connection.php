@@ -74,7 +74,7 @@ class Connection extends BaseConnection {
             $connection->cdo = $connection->createNativeConnection($config);
         });
 
-        $keyspace = $config['keyspace'] ?? '';
+        $keyspace = $config['keyspace'] ??  $config['database'] ?? '';
         $tablePrefix = $config['prefix'] ?? '';
 
         // First we will setup the default properties. We keep track of the DB
@@ -376,7 +376,7 @@ class Connection extends BaseConnection {
      * @return Schema\Grammar
      */
     public function getSchemaGrammar() {
-        return new Schema\Grammar;
+        return new Schema\Grammar($this);
     }
 
     /**
@@ -524,9 +524,8 @@ class Connection extends BaseConnection {
      * @return $this
      */
     public function setKeyspaceName($keyspace) {
-        $this->database = $keyspace;
 
-        return $this;
+        return $this->setDatabaseName($keyspace);
     }
 
     /**
@@ -668,7 +667,8 @@ class Connection extends BaseConnection {
      */
     protected function createNativeConnection(array $config): CassandraConnection {
         $nodes = $this->getNodes($config);
-        $nativeConnection = new CassandraConnection($nodes, $config['keyspace'] ?? '');
+        $keyspace = $config['keyspace'] ??  $config['database'] ?? '';
+        $nativeConnection = new CassandraConnection($nodes, $keyspace);
         $nativeConnection->connect();
 
         return $nativeConnection;
@@ -729,24 +729,14 @@ class Connection extends BaseConnection {
      * @inheritdoc
      */
     protected function getDefaultQueryGrammar() {
-        ($grammar = new Query\Grammar)->setConnection($this);
-
-        $grammar->setTablePrefix($this->tablePrefix);
-        $grammar->setKeyspaceName($this->getKeyspaceName());
-
-        return $grammar;
+        return new Query\Grammar($this);
     }
 
     /**
      * @inheritdoc
      */
     protected function getDefaultSchemaGrammar() {
-        ($grammar = new Schema\Grammar)->setConnection($this);
-
-        $grammar->setTablePrefix($this->tablePrefix);
-        $grammar->setKeyspaceName($this->getKeyspaceName());
-
-        return $grammar;
+        return new Schema\Grammar($this);
     }
 
     /**
