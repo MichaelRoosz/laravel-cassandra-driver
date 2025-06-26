@@ -58,25 +58,19 @@ class Grammar extends BaseGrammar {
      * @throws \RuntimeException
      */
     public function compileChange(BaseBlueprint $blueprint, Fluent $command, BaseConnection $connection) {
-        $changes = [];
 
-        foreach ($blueprint->getChangedColumns() as $column) {
-            $sql = sprintf('alter table %s alter column %s %s',
-                $this->wrapTable($blueprint),
-                $this->wrap($column),
-                $this->getType($column)
-            );
-
-            foreach ($this->modifiers as $modifier) {
-                if (method_exists($this, $method = "modify{$modifier}")) {
-                    $sql .= $this->{$method}($blueprint, $column);
-                }
-            }
-
-            $changes[] = $sql;
+        $column = $command->value('column');
+        if (!($column instanceof ColumnDefinition)) {
+            throw new RuntimeException('Column must be a ColumnDefinition object.');
         }
 
-        return $changes;
+        $sql = sprintf('alter table %s alter %s type %s',
+            $this->wrapTable($blueprint),
+            $this->wrap($column),
+            $this->getType($column)
+        );
+
+        return $this->addModifiers($sql, $blueprint, $column);
     }
 
     /**
@@ -316,6 +310,33 @@ class Grammar extends BaseGrammar {
      */
     public function compilePrimary(BaseBlueprint $blueprint, Fluent $command) {
         throw new RuntimeException('This database driver does not support primary key creation.');
+    }
+
+    /**
+     * Compile a rename column command.
+     *
+     * @param  \Illuminate\Database\Schema\Blueprint  $blueprint
+     * @param  \Illuminate\Support\Fluent<string,mixed>  $command
+     * @param  \Illuminate\Database\Connection  $connection
+     * @return string
+     */
+    public function compileRenameColumn(BaseBlueprint $blueprint, Fluent $command, BaseConnection $connection) {
+
+        $from = $command->value('from');
+        if (!is_string($from)) {
+            throw new RuntimeException('From must be a string.');
+        }
+
+        $to = $command->value('to');
+        if (!is_string($to)) {
+            throw new RuntimeException('To must be a string.');
+        }
+
+        return sprintf('alter table %s rename %s to %s',
+            $this->wrapTable($blueprint),
+            $this->wrap($from),
+            $this->wrap($to)
+        );
     }
 
     /**
