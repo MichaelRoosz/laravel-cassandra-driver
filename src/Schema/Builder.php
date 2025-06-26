@@ -10,7 +10,7 @@ use RuntimeException;
 use Illuminate\Database\Schema\Builder as BaseBuilder;
 use Illuminate\Database\Connection as BaseConnection;
 use Illuminate\Database\Schema\Blueprint as BaseBlueprint;
-
+use InvalidArgumentException;
 use LaravelCassandraDriver\Connection;
 use LaravelCassandraDriver\Consistency;
 
@@ -128,6 +128,12 @@ class Builder extends BaseBuilder {
      * @return array<mixed>
      */
     public function getColumns($table) {
+        [$schema, $table] = $this->parseSchemaAndTable($table, withDefaultSchema: true);
+
+        if ($schema === null) {
+            throw new RuntimeException('Schema name is required.');
+        }
+
         $table = $this->connection->getTablePrefix() . $table;
 
         if (!$this->connection instanceof Connection) {
@@ -139,10 +145,31 @@ class Builder extends BaseBuilder {
         }
 
         $results = $this->connection->selectFromWriteConnection(
-            $this->grammar->compileColumns($this->connection->getKeyspaceName(), $table)
+            $this->grammar->compileColumns(
+                $schema,
+                $table
+            )
         );
 
         return $this->connection->getPostProcessor()->processColumns($results);
+    }
+
+    /**
+     * Get the names of current schemas for the connection.
+     *
+     * @return string[]|null
+     */
+    public function getCurrentSchemaListing() {
+        return [$this->connection->getDatabaseName()];
+    }
+
+    /**
+     * Get the default schema name for the connection.
+     *
+     * @return string|null
+     */
+    public function getCurrentSchemaName() {
+        return $this->getCurrentSchemaListing()[0] ?? null;
     }
 
     /**
@@ -162,6 +189,12 @@ class Builder extends BaseBuilder {
      * @return array<mixed>
      */
     public function getIndexes($table) {
+        [$schema, $table] = $this->parseSchemaAndTable($table, withDefaultSchema: true);
+
+        if ($schema === null) {
+            throw new RuntimeException('Schema name is required.');
+        }
+
         $table = $this->connection->getTablePrefix() . $table;
 
         if (!$this->connection instanceof Connection) {
@@ -174,17 +207,21 @@ class Builder extends BaseBuilder {
 
         return $this->connection->getPostProcessor()->processIndexes(
             $this->connection->selectFromWriteConnection(
-                $this->grammar->compileIndexes($this->connection->getKeyspaceName(), $table)
+                $this->grammar->compileIndexes(
+                    $schema,
+                    $table
+                )
             )
         );
     }
 
     /**
-     * Get the tables for the database.
+     * Get the tables that belong to the connection.
      *
-     * @return array<mixed>
+     * @param  string|string[]|null  $schema
+     * @return array<string>
      */
-    public function getTables() {
+    public function getTables($schema = null) {
 
         if (!$this->connection instanceof Connection) {
             throw new RuntimeException('Invalid connection selected.');
@@ -192,21 +229,29 @@ class Builder extends BaseBuilder {
 
         if (!$this->grammar instanceof Grammar) {
             throw new RuntimeException('Invalid grammar selected.');
+        }
+
+        $schema ??= $this->getCurrentSchemaName();
+        if (!is_string($schema)) {
+            throw new RuntimeException('Invalid schema name.');
         }
 
         return $this->connection->getPostProcessor()->processTables(
             $this->connection->selectFromWriteConnection(
-                $this->grammar->compileTables($this->connection->getKeyspaceName())
+                $this->grammar->compileTables(
+                    $schema,
+                )
             )
         );
     }
 
     /**
-     * Get the views for the database.
+     * Get the views that belong to the connection.
      *
-     * @return array<mixed>
+     * @param  string|string[]|null  $schema
+     * @return array<string>
      */
-    public function getViews() {
+    public function getViews($schema = null) {
         if (!$this->connection instanceof Connection) {
             throw new RuntimeException('Invalid connection selected.');
         }
@@ -215,9 +260,16 @@ class Builder extends BaseBuilder {
             throw new RuntimeException('Invalid grammar selected.');
         }
 
+        $schema ??= $this->getCurrentSchemaName();
+        if (!is_string($schema)) {
+            throw new RuntimeException('Invalid schema name.');
+        }
+
         return $this->connection->getPostProcessor()->processViews(
             $this->connection->selectFromWriteConnection(
-                $this->grammar->compileViews($this->connection->getKeyspaceName())
+                $this->grammar->compileViews(
+                    $schema,
+                )
             )
         );
     }
@@ -226,6 +278,34 @@ class Builder extends BaseBuilder {
         $this->ignoreWarnings = $ignoreWarnings;
 
         return $this;
+    }
+
+    /**
+     * Parse the given database object reference and extract the schema and table.
+     *
+     * @param  string  $reference
+     * @param  string|bool|null  $withDefaultSchema
+     * @return array<string|null>
+     */
+    public function parseSchemaAndTable($reference, $withDefaultSchema = null) {
+        $segments = explode('.', $reference);
+
+        if (count($segments) > 2) {
+            throw new InvalidArgumentException(
+                "Using three-part references is not supported, you may use `Schema::connection('{$segments[0]}')` instead."
+            );
+        }
+
+        $table = $segments[1] ?? $segments[0];
+
+        $schema = match (true) {
+            isset($segments[1]) => $segments[0],
+            is_string($withDefaultSchema) => $withDefaultSchema,
+            $withDefaultSchema => $this->getCurrentSchemaName(),
+            default => null,
+        };
+
+        return [$schema, $table];
     }
 
     /**
@@ -276,5 +356,4 @@ class Builder extends BaseBuilder {
         $this->applyIgnoreWarnings();
         parent::build($blueprint);
     }
-
 }
