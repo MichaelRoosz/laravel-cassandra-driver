@@ -90,13 +90,13 @@ class Grammar extends BaseGrammar {
      * Compile a create table command.
      *
      * @param  \Illuminate\Database\Schema\Blueprint  $blueprint
-     * @param  \Illuminate\Support\Fluent<string,mixed>  $command
-     * @param  \Illuminate\Database\Connection  $connection
+     * @param  \Illuminate\Support\Fluent  $command
      * @return string
      */
-    public function compileCreate(BaseBlueprint $blueprint, Fluent $command, BaseConnection $connection) {
+    public function compileCreate(Blueprint $blueprint, Fluent $command) {
+
         $sql = $this->compileCreateTable(
-            $blueprint, $command, $connection
+            $blueprint, $command, $this->connection
         );
 
         return $sql;
