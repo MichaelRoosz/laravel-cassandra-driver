@@ -820,11 +820,9 @@ class Blueprint extends BaseBlueprint {
     /**
      * Add the index commands fluently specified on columns.
      *
-     * @param  \Illuminate\Database\Connection  $connection
-     * @param  \Illuminate\Database\Schema\Grammars\Grammar  $grammar
      * @return void
      */
-    protected function addFluentIndexes(Connection $connection, Grammar $grammar) {
+    protected function addFluentIndexes() {
         foreach ($this->columns as $column) {
             foreach (['partition', 'clustering', 'primary', 'unique', 'index', 'fulltext', 'fullText', 'spatialIndex'] as $index) {
 

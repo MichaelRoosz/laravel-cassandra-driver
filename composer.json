@@ -38,7 +38,7 @@
     "prefer-stable": true,
     "require": {
         "php": ">=8.2",
-        "laravel/framework": "^11",
+        "laravel/framework": "^12",
         "mroosz/php-cassandra": "^0.8.1"
     },
     "require-dev": {

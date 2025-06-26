@@ -6,7 +6,6 @@ namespace LaravelCassandraDriver\Query;
 
 use Illuminate\Database\Query\Grammars\Grammar as BaseGrammar;
 use Illuminate\Database\Query\Builder as BaseBuilder;
-use Illuminate\Database\Connection as BaseConnection;
 use Illuminate\Support\Collection;
 use InvalidArgumentException;
 
@@ -25,11 +24,6 @@ class Grammar extends BaseGrammar {
         'limit',
         'allowFiltering',
     ];
-
-    public function __construct(BaseConnection $connection) {
-        $this->setTablePrefix($connection->getTablePrefix());
-        $this->setConnection($connection);
-    }
 
     public function buildCollectionString(string $type, mixed $value): string {
 
@@ -274,7 +268,7 @@ class Grammar extends BaseGrammar {
      * @return string
      */
     public function wrapTable($table, $prefix = null) {
-        $table = parent::wrapTable($table);
+        $table = parent::wrapTable($table, $prefix);
 
         $keyspaceName = $this->connection->getDatabaseName();
         if ($keyspaceName) {

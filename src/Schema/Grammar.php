@@ -22,11 +22,6 @@ class Grammar extends BaseGrammar {
         'PrimaryKey', 'Static', 'Nullable',
     ];
 
-    public function __construct(BaseConnection $connection) {
-        $this->setTablePrefix($connection->getTablePrefix());
-        $this->setConnection($connection);
-    }
-
     /**
      * Compile an add column command.
      *
@@ -52,12 +47,11 @@ class Grammar extends BaseGrammar {
      *
      * @param  \Illuminate\Database\Schema\Blueprint  $blueprint
      * @param  \Illuminate\Support\Fluent<string,mixed>  $command
-     * @param  \Illuminate\Database\Connection  $connection
      * @return array<mixed>|string
      *
      * @throws \RuntimeException
      */
-    public function compileChange(BaseBlueprint $blueprint, Fluent $command, BaseConnection $connection) {
+    public function compileChange(BaseBlueprint $blueprint, Fluent $command) {
 
         $column = $command->value('column');
         if (!($column instanceof ColumnDefinition)) {
@@ -179,7 +173,19 @@ class Grammar extends BaseGrammar {
             throw new RuntimeException('Columns must be an array.');
         }
 
-        $columns = $this->wrapArray($columnsInfo);
+        $validatedColumnsInfo = [];
+        foreach ($columnsInfo as $info) {
+            if (
+                !is_string($info)
+                && !($info instanceof \Illuminate\Contracts\Database\Query\Expression)
+            ) {
+                throw new RuntimeException('Column must be a string or an expression.');
+            }
+
+            $validatedColumnsInfo[] = $info;
+        }
+
+        $columns = $this->wrapArray($validatedColumnsInfo);
 
         return 'alter table ' . $this->wrapTable($blueprint) . ' drop (' . implode(', ', $columns) . ')';
     }
@@ -266,10 +272,22 @@ class Grammar extends BaseGrammar {
             throw new RuntimeException('Columns must be an array.');
         }
 
+        $validatedColumnsInfo = [];
+        foreach ($columnsInfo as $info) {
+            if (
+                !is_string($info)
+                && !($info instanceof \Illuminate\Contracts\Database\Query\Expression)
+            ) {
+                throw new RuntimeException('Column must be a string or an expression.');
+            }
+
+            $validatedColumnsInfo[] = $info;
+        }
+
         return sprintf('create index %s on %s (%s)',
             $this->wrap($indexInfo),
             $this->wrapTable($blueprint),
-            $this->columnize($columnsInfo)
+            $this->columnize($validatedColumnsInfo)
         );
     }
 
@@ -317,10 +335,9 @@ class Grammar extends BaseGrammar {
      *
      * @param  \Illuminate\Database\Schema\Blueprint  $blueprint
      * @param  \Illuminate\Support\Fluent<string,mixed>  $command
-     * @param  \Illuminate\Database\Connection  $connection
      * @return string
      */
-    public function compileRenameColumn(BaseBlueprint $blueprint, Fluent $command, BaseConnection $connection) {
+    public function compileRenameColumn(BaseBlueprint $blueprint, Fluent $command) {
 
         $from = $command->value('from');
         if (!is_string($from)) {
@@ -376,7 +393,7 @@ class Grammar extends BaseGrammar {
      * @return string
      */
     public function wrapTable($table, $prefix = null) {
-        $table = parent::wrapTable($table);
+        $table = parent::wrapTable($table, $prefix);
 
         $keyspaceName = $this->connection->getDatabaseName();
         if ($keyspaceName) {
@@ -410,7 +427,20 @@ class Grammar extends BaseGrammar {
 
             $partitionKeyColumns = array_merge($partitionKeyColumns, $columns);
         }
-        $partitionKeyCql = $this->columnize($partitionKeyColumns);
+
+        $validatedPartitionKeyColumns = [];
+        foreach ($partitionKeyColumns as $info) {
+            if (
+                !is_string($info)
+                && !($info instanceof \Illuminate\Contracts\Database\Query\Expression)
+            ) {
+                throw new RuntimeException('Column must be a string or an expression.');
+            }
+
+            $validatedPartitionKeyColumns[] = $info;
+        }
+
+        $partitionKeyCql = $this->columnize($validatedPartitionKeyColumns);
 
         if (!$partitionKeyCql) {
             throw new RuntimeException('Partition key must be defined.');

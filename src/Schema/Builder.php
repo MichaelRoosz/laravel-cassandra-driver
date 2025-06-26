@@ -26,8 +26,13 @@ class Builder extends BaseBuilder {
         $this->connection = $connection;
         $this->grammar = $connection->getSchemaGrammar();
 
-        $this->blueprintResolver(function (string $table, ?Closure $callback = null, string $prefix = '') {
-            return new Blueprint($table, $callback, $prefix);
+        /** @phpstan-ignore-next-line */
+        $this->blueprintResolver(function (
+            BaseConnection $connection,
+            string $table,
+            ?Closure $callback = null,
+        ) {
+            return new Blueprint($connection, $table, $callback);
         });
     }
 
@@ -125,7 +130,7 @@ class Builder extends BaseBuilder {
      * Get the columns for a given table.
      *
      * @param  string  $table
-     * @return array<mixed>
+     * @return list<array{name: string, type: string, type_name: string, nullable: bool, default: mixed, auto_increment: bool, comment: string|null, generation: array{type: string, expression: string|null}|null}>
      */
     public function getColumns($table) {
         [$schema, $table] = $this->parseSchemaAndTable($table, withDefaultSchema: true);
@@ -144,6 +149,7 @@ class Builder extends BaseBuilder {
             throw new RuntimeException('Invalid grammar selected.');
         }
 
+        /** @var list<array<string, mixed>> $results */
         $results = $this->connection->selectFromWriteConnection(
             $this->grammar->compileColumns(
                 $schema,
@@ -186,7 +192,7 @@ class Builder extends BaseBuilder {
      * Get the indexes for a given table.
      *
      * @param  string  $table
-     * @return array<mixed>
+     * @return list<array{name: string, columns: list<string>, type: string, unique: bool, primary: bool}>
      */
     public function getIndexes($table) {
         [$schema, $table] = $this->parseSchemaAndTable($table, withDefaultSchema: true);
@@ -205,21 +211,22 @@ class Builder extends BaseBuilder {
             throw new RuntimeException('Invalid grammar selected.');
         }
 
-        return $this->connection->getPostProcessor()->processIndexes(
-            $this->connection->selectFromWriteConnection(
-                $this->grammar->compileIndexes(
-                    $schema,
-                    $table
-                )
+        /** @var list<array<string, mixed>> $results */
+        $results = $this->connection->selectFromWriteConnection(
+            $this->grammar->compileIndexes(
+                $schema,
+                $table
             )
         );
+
+        return $this->connection->getPostProcessor()->processIndexes($results);
     }
 
     /**
      * Get the tables that belong to the connection.
      *
      * @param  string|string[]|null  $schema
-     * @return array<string>
+     * @return list<array{name: string, schema?: string|null, schema_qualified_name?: string, size?: int|null, comment?: string|null, collation?: string|null, engine?: string|null}>
      */
     public function getTables($schema = null) {
 
@@ -236,20 +243,21 @@ class Builder extends BaseBuilder {
             throw new RuntimeException('Invalid schema name.');
         }
 
-        return $this->connection->getPostProcessor()->processTables(
-            $this->connection->selectFromWriteConnection(
-                $this->grammar->compileTables(
-                    $schema,
-                )
+        /** @var list<array<string, mixed>> $results */
+        $results = $this->connection->selectFromWriteConnection(
+            $this->grammar->compileTables(
+                $schema,
             )
         );
+
+        return $this->connection->getPostProcessor()->processIndexes($results);
     }
 
     /**
      * Get the views that belong to the connection.
      *
      * @param  string|string[]|null  $schema
-     * @return array<string>
+     * @return list<array{name: string, schema: string|null, schema_qualified_name: string, definition: string}>
      */
     public function getViews($schema = null) {
         if (!$this->connection instanceof Connection) {
@@ -265,13 +273,14 @@ class Builder extends BaseBuilder {
             throw new RuntimeException('Invalid schema name.');
         }
 
-        return $this->connection->getPostProcessor()->processViews(
-            $this->connection->selectFromWriteConnection(
-                $this->grammar->compileViews(
-                    $schema,
-                )
+        /** @var list<array<string, mixed>> $results */
+        $results = $this->connection->selectFromWriteConnection(
+            $this->grammar->compileViews(
+                $schema,
             )
         );
+
+        return $this->connection->getPostProcessor()->processViews($results);
     }
 
     public function ignoreWarnings(bool $ignoreWarnings = true): self {
