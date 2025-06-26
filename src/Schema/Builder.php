@@ -60,7 +60,7 @@ class Builder extends BaseBuilder {
         }
 
         return $this->connection->statement(
-            $this->grammar->compileCreateKeyspace($name, $this->connection, $replication)
+            $this->grammar->compileCreateKeyspace($name, $replication)
         );
     }
 
@@ -78,7 +78,7 @@ class Builder extends BaseBuilder {
         }
 
         return $this->connection->statement(
-            $this->grammar->compileCreateKeyspace($name, $this->connection, $replication, true)
+            $this->grammar->compileCreateKeyspace($name, $replication, true)
         );
     }
 
