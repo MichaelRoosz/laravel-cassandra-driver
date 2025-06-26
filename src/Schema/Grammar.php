@@ -8,7 +8,6 @@ use RuntimeException;
 
 use Illuminate\Database\Schema\Grammars\Grammar as BaseGrammar;
 use Illuminate\Support\Fluent;
-use Illuminate\Database\Connection as BaseConnection;
 use Illuminate\Database\Schema\Blueprint as BaseBlueprint;
 use Illuminate\Database\Schema\ColumnDefinition;
 
@@ -112,12 +111,11 @@ class Grammar extends BaseGrammar {
      * Compile a create keyspace command.
      *
      * @param  ?array<string,mixed>  $replication
-     * @param  \Illuminate\Database\Connection  $connection
      * @return string
      */
-    public function compileCreateKeyspace(string $name, BaseConnection $connection, ?array $replication = null, bool $ifNotExists = false) {
+    public function compileCreateKeyspace(string $name, ?array $replication = null, bool $ifNotExists = false) {
 
-        $replication ??= $connection->getConfig('default_replication') ?? [
+        $replication ??= $this->connection->getConfig('default_replication') ?? [
             'class' => 'SimpleStrategy',
             'replication_factor' => 1,
         ];
