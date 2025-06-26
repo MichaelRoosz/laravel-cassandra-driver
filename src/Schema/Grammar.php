@@ -31,10 +31,13 @@ class Grammar extends BaseGrammar {
      * @return string
      */
     public function compileAdd(BaseBlueprint $blueprint, Fluent $command) {
-        $columns = $this->prefixArray('add', $this->getColumns($blueprint));
 
-        return 'alter table ' . $this->wrapTable($blueprint) . ' ' . implode(', ', $columns);
+        return sprintf('alter table %s add %s',
+            $this->wrapTable($blueprint),
+            $this->getColumn($blueprint, $command->column)
+        );
     }
+
     /**
      * Compile a change column command into a series of SQL statements.
      *
@@ -168,9 +171,9 @@ class Grammar extends BaseGrammar {
             throw new RuntimeException('Columns must be an array.');
         }
 
-        $columns = $this->prefixArray('drop', $this->wrapArray($columnsInfo));
+        $columns = $this->wrapArray($columnsInfo);
 
-        return 'alter table ' . $this->wrapTable($blueprint) . ' ' . implode(', ', $columns);
+        return 'alter table ' . $this->wrapTable($blueprint) . ' drop (' . implode(', ', $columns) . ')';
     }
 
     /**
