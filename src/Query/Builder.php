@@ -213,6 +213,54 @@ class Builder extends BaseBuilder {
         return $this;
     }
 
+    /**
+     * Add a "where contains" clause to the query.
+     *
+     * @param  \Illuminate\Contracts\Database\Query\Expression|string  $column
+     * @param  string  $value
+     * @param  string  $boolean
+     * @param  bool  $not
+     * @return $this
+     */
+    public function whereContains($column, $value, $boolean = 'and', $not = false) {
+
+        if ($not) {
+            throw new RuntimeException('whereContains does not support not operator');
+        }
+
+        $type = 'contains';
+
+        $this->wheres[] = compact('type', 'column', 'value', 'boolean');
+
+        $this->addBinding($value);
+
+        return $this;
+    }
+
+    /**
+     * Add a "where contains" clause to the query.
+     *
+     * @param  \Illuminate\Contracts\Database\Query\Expression|string  $column
+     * @param  string  $value
+     * @param  string  $boolean
+     * @param  bool  $not
+     * @return $this
+     */
+    public function whereContainsKey($column, $value, $boolean = 'and', $not = false) {
+
+        if ($not) {
+            throw new RuntimeException('whereContainsKey does not support not operator');
+        }
+
+        $type = 'containsKey';
+
+        $this->wheres[] = compact('type', 'column', 'value', 'boolean');
+
+        $this->addBinding($value);
+
+        return $this;
+    }
+
     protected function applyConsistency(): void {
 
         if (!$this->connection instanceof Connection) {

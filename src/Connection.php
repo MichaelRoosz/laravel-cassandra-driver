@@ -12,6 +12,12 @@ use Cassandra\Connection as CassandraConnection;
 use Cassandra\Exception as CassandraException;
 use Cassandra\Request\Batch;
 use Cassandra\Response\Result as CassandraResult;
+use Cassandra\Connection\StreamNodeConfig;
+use Cassandra\Consistency as DriverConsistency;
+use Cassandra\Request\BatchType;
+use Cassandra\Request\Options\ExecuteOptions;
+use Cassandra\Response\Result\RowsResult;
+use Cassandra\Response\ResultKind;
 use Exception;
 use Illuminate\Database\QueryException;
 use Illuminate\Database\UniqueConstraintViolationException;
@@ -102,6 +108,7 @@ class Connection extends BaseConnection {
      * @return int
      */
     public function affectingStatement($query, $bindings = []) {
+
         $result = $this->run($query, $bindings, function ($query, $bindings) {
             if ($this->pretending()) {
                 return 0;
@@ -112,7 +119,7 @@ class Connection extends BaseConnection {
             // For update or delete statements, we want to get the number of rows affected
             // by the statement and return that back to the developer. We'll first need
             // to execute the statement and then we'll use PDO to fetch the affected.
-            $prepareResult = $cdo->prepare($query);
+            $prepareResult = $cdo->prepareSync($query);
             $this->logResultWarnings($prepareResult, $query);
 
             $preparedBindings = $this->prepareBindings($bindings);
@@ -120,7 +127,7 @@ class Connection extends BaseConnection {
             $result = $cdo->executeSync(
                 $prepareResult,
                 $preparedBindings,
-                $this->getConsistency()->value
+                $this->mapConsistency($this->getConsistency())
             );
             $this->logResultWarnings($result, $query);
 
@@ -163,14 +170,14 @@ class Connection extends BaseConnection {
 
             $cdo = $this->getCdo();
 
-            $batchRequest = new Batch(Batch::TYPE_LOGGED, $this->getConsistency()->value);
+            $batchRequest = new Batch(BatchType::LOGGED, $this->mapConsistency($this->getConsistency()));
 
             for ($i = 0; $i < $queryCount; $i++) {
 
                 $query = $queries[$i];
                 $queryBindings = $bindings[$i];
 
-                $prepareResult = $cdo->prepare($query);
+                $prepareResult = $cdo->prepareSync($query);
                 $this->logResultWarnings($prepareResult, $query);
 
                 $preparedBindings = $this->prepareBindings($queryBindings);
@@ -215,7 +222,7 @@ class Connection extends BaseConnection {
             // First we will create a statement for the query. Then, we will set the fetch
             // mode and prepare the bindings for the query. Once that's done we will be
             // ready to execute the query against the database and return the cursor.
-            $prepareResult = $cdo->prepare($query);
+            $prepareResult = $cdo->prepareSync($query);
             $this->logResultWarnings($prepareResult, $query);
 
             $this->event(new StatementPrepared($this, $prepareResult));
@@ -228,23 +235,23 @@ class Connection extends BaseConnection {
             $results = [];
             $pagingState = null;
             do {
-                $options = [
-                    'page_size' => $this->getPageSize(),
-                ];
-
-                if ($pagingState) {
-                    $options['paging_state'] = $pagingState;
-                }
+                $options = new ExecuteOptions(
+                    pageSize: $this->getPageSize(),
+                    pagingState: $pagingState,
+                );
 
                 $result = $cdo->executeSync(
                     $prepareResult,
                     $preparedBindings,
-                    $this->getConsistency()->value,
+                    $this->mapConsistency($this->getConsistency()),
                     $options,
                 );
+
                 $this->logResultWarnings($result, $query);
 
-                $pagingState = $result->getMetadata()['paging_state'] ?? null;
+                if ($result instanceof RowsResult) {
+                    $pagingState = $result->getMetadata()->pagingState;
+                }
 
                 $results[] = $result->getIterator();
 
@@ -438,37 +445,36 @@ class Connection extends BaseConnection {
             // For select statements, we'll simply execute the query and return an array
             // of the database result set. Each element in the array will be a single
             // row from the database table, and will either be an array or objects.
-            $prepareResult = $cdo->prepare($query);
+            $prepareResult = $cdo->prepareSync($query);
             $this->logResultWarnings($prepareResult, $query);
 
             $this->event(new StatementPrepared($this, $prepareResult));
 
             $preparedBindings = $this->prepareBindings($bindings);
 
+            $consistency = $this->mapConsistency($this->getConsistency());
             $result = [];
             $pagingState = null;
             do {
-                $options = [
-                    'page_size' => $this->getPageSize(),
-                ];
-
-                if ($pagingState) {
-                    $options['paging_state'] = $pagingState;
-                }
+                $options = new ExecuteOptions(
+                    pageSize: $this->getPageSize(),
+                    pagingState: $pagingState,
+                );
 
                 $currentResult = $cdo->executeSync(
                     $prepareResult,
                     $preparedBindings,
-                    $this->getConsistency()->value,
+                    $consistency,
                     $options,
-                );
+                )->asRowsResult();
+
                 $this->logResultWarnings($currentResult, $query);
 
-                $pagingState = $currentResult->getMetadata()['paging_state'] ?? null;
+                $pagingState = $currentResult->getMetadata()->pagingState;
 
                 $result = array_merge($result, $currentResult->fetchAll());
 
-            } while ($pagingState);
+            } while ($pagingState && $currentResult->hasMorePages());
 
             return $result;
         });
@@ -552,6 +558,7 @@ class Connection extends BaseConnection {
      * @return bool
      */
     public function statement($query, $bindings = []) {
+
         $result = $this->run($query, $bindings, function ($query, $bindings) {
             if ($this->pretending()) {
                 return true;
@@ -559,7 +566,7 @@ class Connection extends BaseConnection {
 
             $cdo = $this->getCdo();
 
-            $prepareResult = $cdo->prepare($query);
+            $prepareResult = $cdo->prepareSync($query);
             $this->logResultWarnings($prepareResult, $query);
 
             $preparedBindings = $this->prepareBindings($bindings);
@@ -569,7 +576,7 @@ class Connection extends BaseConnection {
             $result = $cdo->executeSync(
                 $prepareResult,
                 $preparedBindings,
-                $this->getConsistency()->value
+                $this->mapConsistency($this->getConsistency()),
             );
             $this->logResultWarnings($result, $query);
 
@@ -600,11 +607,11 @@ class Connection extends BaseConnection {
             $result = $cdo->querySync(
                 $query,
                 [],
-                $this->getConsistency()->value,
+                $this->mapConsistency($this->getConsistency()),
             );
             $this->logResultWarnings($result, $query);
 
-            if ($result->getKind() === CassandraResult::ROWS) {
+            if ($result->getKind() === ResultKind::ROWS) {
                 $count = $result->getRowCount();
             } else {
                 $count = 0;
@@ -754,16 +761,7 @@ class Connection extends BaseConnection {
      *   page_size?: int
      * } $config
      * 
-     * @return array<array{
-     *   host: string,
-     *   port: int,
-     *   username: string,
-     *   password: string,
-     *   timeout: int,
-     *   connect_timeout: float,
-     *   request_timeout: float,
-     *   page_size: int
-     * }>
+     * @return array<\Cassandra\Connection\NodeConfig>
      */
     protected function getNodes(array $config): array {
         $nodes = [];
@@ -779,23 +777,21 @@ class Connection extends BaseConnection {
             if (is_string($config['port'])) {
                 $ports = explode(',', $config['port']);
             } else {
-                $ports = [array_fill(0, count($hosts), $config['port'])];
+                $ports = array_fill(0, count($hosts), $config['port']);
             }
         } else {
             $ports = array_fill(0, count($hosts), 9042);
         }
 
         foreach ($hosts as $index => $host) {
-            $node = [
-                'host' => $host,
-                'port' => (int) $ports[$index],
-                'username' => $config['username'],
-                'password' => $config['password'],
-                'timeout' => $config['timeout'] ?? self::DEFAULT_TIMEOUT,
-                'connect_timeout' => $config['connect_timeout'] ?? self::DEFAULT_CONNECT_TIMEOUT,
-                'request_timeout' => $config['request_timeout'] ?? self::DEFAULT_REQUEST_TIMEOUT,
-                'page_size' => $config['page_size'] ?? self::DEFAULT_PAGE_SIZE,
-            ];
+            $node = new StreamNodeConfig(
+                host: $host,
+                port: (int) $ports[$index],
+                username: $config['username'],
+                password: $config['password'],
+                connectTimeoutInSeconds: $config['connect_timeout'] ?? self::DEFAULT_CONNECT_TIMEOUT,
+                timeoutInSeconds: $config['request_timeout'] ?? self::DEFAULT_REQUEST_TIMEOUT,
+            );
 
             $nodes[] = $node;
         }
@@ -843,6 +839,22 @@ class Connection extends BaseConnection {
                 }
             }
         }
+    }
+
+    protected function mapConsistency(Consistency $consistency): DriverConsistency {
+        return match ($consistency) {
+            Consistency::ALL => DriverConsistency::ALL,
+            Consistency::ANY => DriverConsistency::ANY,
+            Consistency::EACH_QUORUM => DriverConsistency::EACH_QUORUM,
+            Consistency::LOCAL_ONE => DriverConsistency::LOCAL_ONE,
+            Consistency::LOCAL_QUORUM => DriverConsistency::LOCAL_QUORUM,
+            Consistency::LOCAL_SERIAL => DriverConsistency::LOCAL_SERIAL,
+            Consistency::ONE => DriverConsistency::ONE,
+            Consistency::QUORUM => DriverConsistency::QUORUM,
+            Consistency::SERIAL => DriverConsistency::SERIAL,
+            Consistency::THREE => DriverConsistency::THREE,
+            Consistency::TWO => DriverConsistency::TWO,
+        };
     }
 
     /**

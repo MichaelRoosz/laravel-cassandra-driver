@@ -4,17 +4,32 @@ declare(strict_types=1);
 
 namespace LaravelCassandraDriver\Schema;
 
-use Illuminate\Database\Connection;
 use Illuminate\Database\Schema\Blueprint as BaseBlueprint;
-use Illuminate\Database\Schema\Grammars\Grammar;
 use RuntimeException;
 
 class Blueprint extends BaseBlueprint {
     /**
+     * Add a new column to the blueprint.
+     *
+     * @param  string  $type
+     * @param  string  $name
+     * @param  array<mixed>  $parameters
+     * @return \LaravelCassandraDriver\Schema\ColumnDefinition
+     */
+    public function addColumn($type, $name, array $parameters = []) {
+
+        /** @var \LaravelCassandraDriver\Schema\ColumnDefinition $column */
+        $column = $this->addColumnDefinition(new ColumnDefinition(
+            array_merge(compact('type', 'name'), $parameters)
+        ));
+
+        return $column;
+    }
+    /**
      * Create a new ascii column on the table.
      *
      * @param string $column
-     * @return \Illuminate\Support\Fluent<string,mixed>
+     * @return \LaravelCassandraDriver\Schema\ColumnDefinition
      */
     public function ascii($column) {
         return $this->addColumn('ascii', $column);
@@ -24,7 +39,7 @@ class Blueprint extends BaseBlueprint {
      * Create a new auto-incrementing big integer (8-byte) column on the table.
      *
      * @param  string  $column
-     * @return \Illuminate\Database\Schema\ColumnDefinition
+     * @return \LaravelCassandraDriver\Schema\ColumnDefinition
      */
     public function bigIncrements($column) {
         throw new RuntimeException('This database driver does not support auto-increment columns.');
@@ -34,7 +49,7 @@ class Blueprint extends BaseBlueprint {
      * Create a new bigint column on the table.
      * 
      * @param string $column
-     * @return \Illuminate\Support\Fluent<string,mixed>
+     * @return \LaravelCassandraDriver\Schema\ColumnDefinition
      */
     public function bigint($column) {
         return $this->addColumn('bigint', $column);
@@ -46,7 +61,7 @@ class Blueprint extends BaseBlueprint {
      * @param  string  $column
      * @param  bool  $autoIncrement
      * @param  bool  $unsigned
-     * @return \Illuminate\Database\Schema\ColumnDefinition
+     * @return \LaravelCassandraDriver\Schema\ColumnDefinition
      */
     public function bigInteger($column, $autoIncrement = false, $unsigned = false) {
         return $this->addColumn('bigint', $column);
@@ -58,7 +73,7 @@ class Blueprint extends BaseBlueprint {
      * @param  string  $column
      * @param  int|null  $length
      * @param  bool  $fixed
-     * @return \Illuminate\Database\Schema\ColumnDefinition
+     * @return \LaravelCassandraDriver\Schema\ColumnDefinition
      */
     public function binary($column, $length = null, $fixed = false) {
         return $this->addColumn('blob', $column);
@@ -68,7 +83,7 @@ class Blueprint extends BaseBlueprint {
      * Create a new blob column on the table.
      *
      * @param string $column
-     * @return \Illuminate\Support\Fluent<string,mixed>
+     * @return \LaravelCassandraDriver\Schema\ColumnDefinition
      */
     public function blob($column) {
         return $this->addColumn('blob', $column);
@@ -78,10 +93,21 @@ class Blueprint extends BaseBlueprint {
      * Create a new boolean column on the table.
      *
      * @param string $column
-     * @return \Illuminate\Support\Fluent<string,mixed>
+     * @return \LaravelCassandraDriver\Schema\ColumnDefinition
      */
     public function boolean($column) {
         return $this->addColumn('boolean', $column);
+    }
+
+    /**
+     * Execute the blueprint against the database.
+     *
+     * @return void
+     */
+    public function build() {
+        foreach ($this->toSql() as $statement) {
+            $this->connection->unprepared($statement);
+        }
     }
 
     /**
@@ -89,7 +115,7 @@ class Blueprint extends BaseBlueprint {
      *
      * @param  string  $column
      * @param  int|null  $length
-     * @return \Illuminate\Database\Schema\ColumnDefinition
+     * @return \LaravelCassandraDriver\Schema\ColumnDefinition
      */
     public function char($column, $length = null) {
 
@@ -112,7 +138,7 @@ class Blueprint extends BaseBlueprint {
      * @param  string|array<mixed>  $columns
      * @param  string|null  $orderBy
      * @param  string|null  $name
-     * @return \Illuminate\Support\Fluent<string,mixed>
+     * @return \Illuminate\Database\Schema\IndexDefinition
      */
     public function clustering($columns, $orderBy = null, $name = null) {
 
@@ -126,7 +152,10 @@ class Blueprint extends BaseBlueprint {
             throw new RuntimeException('The order by clause must be either "ASC" or "DESC".');
         }
 
-        return $this->indexCommand('clustering', $columns, $name ?? '', $orderBy);
+        /** @var \Illuminate\Database\Schema\IndexDefinition $index */
+        $index = $this->indexCommand('clustering', $columns, $name ?? '', $orderBy);
+
+        return $index;
     }
 
     /**
@@ -140,13 +169,44 @@ class Blueprint extends BaseBlueprint {
     }
 
     /**
+     * Add a comment to the table.
+     *
+     * @param  string  $comment
+     * @return \Illuminate\Support\Fluent<string,mixed>
+     */
+    public function comment($comment) {
+        throw new RuntimeException('This database driver does not support comments.');
+    }
+
+    /**
+     * Create a new generated, computed column on the table.
+     *
+     * @param  string  $column
+     * @param  string  $expression
+     * @return \LaravelCassandraDriver\Schema\ColumnDefinition
+     */
+    public function computed($column, $expression) {
+        throw new RuntimeException('This database driver does not support computed columns.');
+    }
+
+    /**
      * Create a new counter column on the table.
      *
      * @param string $column
-     * @return \Illuminate\Support\Fluent<string,mixed>
+     * @return \LaravelCassandraDriver\Schema\ColumnDefinition
      */
     public function counter($column) {
         return $this->addColumn('counter', $column);
+    }
+
+    /**
+     * Create a new date column on the table.
+     *
+     * @param  string  $column
+     * @return \LaravelCassandraDriver\Schema\ColumnDefinition
+     */
+    public function date($column) {
+        return $this->addColumn('date', $column);
     }
 
     /**
@@ -154,7 +214,7 @@ class Blueprint extends BaseBlueprint {
      *
      * @param  string  $column
      * @param  int|null  $precision
-     * @return \Illuminate\Database\Schema\ColumnDefinition
+     * @return \LaravelCassandraDriver\Schema\ColumnDefinition
      */
     public function dateTime($column, $precision = null) {
         return $this->addColumn('timestamp', $column);
@@ -165,7 +225,7 @@ class Blueprint extends BaseBlueprint {
      *
      * @param  string  $column
      * @param  int|null  $precision
-     * @return \Illuminate\Database\Schema\ColumnDefinition
+     * @return \LaravelCassandraDriver\Schema\ColumnDefinition
      */
     public function dateTimeTz($column, $precision = null) {
         return $this->addColumn('timestamp', $column);
@@ -177,11 +237,22 @@ class Blueprint extends BaseBlueprint {
      * @param  string  $column
      * @param  int  $total
      * @param  int  $places
-     * @return \Illuminate\Database\Schema\ColumnDefinition
+     * @return \LaravelCassandraDriver\Schema\ColumnDefinition
      */
     public function decimal($column, $total = 8, $places = 2) {
         return $this->addColumn('decimal', $column);
     }
+
+    /**
+     * Create a new double column on the table.
+     *
+     * @param  string  $column
+     * @return  \LaravelCassandraDriver\Schema\ColumnDefinition
+     */
+    public function double($column) {
+        return $this->addColumn('double', $column);
+    }
+
     /**
      * Indicate that the given fulltext index should be dropped.
      *
@@ -288,7 +359,7 @@ class Blueprint extends BaseBlueprint {
      * Create a new duration column on the table.
      *
      * @param string $column
-     * @return \Illuminate\Support\Fluent<string,mixed>
+     * @return \LaravelCassandraDriver\Schema\ColumnDefinition
      */
     public function duration($column) {
         return $this->addColumn('duration', $column);
@@ -309,7 +380,7 @@ class Blueprint extends BaseBlueprint {
      *
      * @param  string  $column
      * @param  array<mixed>  $allowed
-     * @return \Illuminate\Database\Schema\ColumnDefinition
+     * @return \LaravelCassandraDriver\Schema\ColumnDefinition
      */
     public function enum($column, array $allowed) {
         throw new RuntimeException('This database driver does not support the enum columns.');
@@ -320,7 +391,7 @@ class Blueprint extends BaseBlueprint {
      *
      * @param  string  $column
      * @param  int  $precision
-     * @return \Illuminate\Database\Schema\ColumnDefinition
+     * @return \LaravelCassandraDriver\Schema\ColumnDefinition
      */
     public function float($column, $precision = 53) {
         return $this->addColumn('float', $column);
@@ -337,10 +408,52 @@ class Blueprint extends BaseBlueprint {
     }
 
     /**
+     * Create a new unsigned big integer (8-byte) column on the table.
+     *
+     * @param  string  $column
+     * @return \Illuminate\Database\Schema\ForeignIdColumnDefinition
+     */
+    public function foreignId($column) {
+        throw new RuntimeException('This database driver does not support foreign ids.');
+    }
+
+    /**
+     * Create a foreign ID column for the given model.
+     *
+     * @param  \Illuminate\Database\Eloquent\Model|string  $model
+     * @param  string|null  $column
+     * @return \Illuminate\Database\Schema\ForeignIdColumnDefinition
+     */
+    public function foreignIdFor($model, $column = null) {
+        throw new RuntimeException('This database driver does not support foreign ids.');
+    }
+
+    /**
+     * Create a new ULID column on the table with a foreign key constraint.
+     *
+     * @param  string  $column
+     * @param  int|null  $length
+     * @return \Illuminate\Database\Schema\ForeignIdColumnDefinition
+     */
+    public function foreignUlid($column, $length = 26) {
+        throw new RuntimeException('This database driver does not support foreign keys.');
+    }
+
+    /**
+     * Create a new UUID column on the table with a foreign key constraint.
+     *
+     * @param  string  $column
+     * @return \Illuminate\Database\Schema\ForeignIdColumnDefinition
+     */
+    public function foreignUuid($column) {
+        throw new RuntimeException('This database driver does not support foreign keys.');
+    }
+
+    /**
      * Create a new frozen column on the table.
      *
      * @param string $column
-     * @return \Illuminate\Support\Fluent<string,mixed>
+     * @return \LaravelCassandraDriver\Schema\ColumnDefinition
      */
     public function frozen($column) {
         return $this->addColumn('frozen', $column);
@@ -363,7 +476,7 @@ class Blueprint extends BaseBlueprint {
      * @param  string  $column
      * @param  string|null  $subtype
      * @param  int  $srid
-     * @return \Illuminate\Database\Schema\ColumnDefinition
+     * @return \LaravelCassandraDriver\Schema\ColumnDefinition
      */
     public function geography($column, $subtype = null, $srid = 4326) {
         throw new RuntimeException('This database driver does not support geography columns.');
@@ -375,7 +488,7 @@ class Blueprint extends BaseBlueprint {
      * @param  string  $column
      * @param  string|null  $subtype
      * @param  int  $srid
-     * @return \Illuminate\Database\Schema\ColumnDefinition
+     * @return \LaravelCassandraDriver\Schema\ColumnDefinition
      */
     public function geometry($column, $subtype = null, $srid = 0) {
         throw new RuntimeException('This database driver does not support geometry columns.');
@@ -385,7 +498,7 @@ class Blueprint extends BaseBlueprint {
      * Create a new auto-incrementing big integer (8-byte) column on the table.
      *
      * @param  string  $column
-     * @return \Illuminate\Database\Schema\ColumnDefinition
+     * @return \LaravelCassandraDriver\Schema\ColumnDefinition
      */
     public function id($column = 'id') {
         throw new RuntimeException('This database driver does not support auto-increment columns.');
@@ -394,7 +507,7 @@ class Blueprint extends BaseBlueprint {
      * Create a new auto-incrementing integer (4-byte) column on the table.
      *
      * @param  string  $column
-     * @return \Illuminate\Database\Schema\ColumnDefinition
+     * @return \LaravelCassandraDriver\Schema\ColumnDefinition
      */
     public function increments($column) {
         throw new RuntimeException('This database driver does not support auto-increment columns.');
@@ -404,7 +517,7 @@ class Blueprint extends BaseBlueprint {
      * Create a new inet column on the table.
      *
      * @param string $column
-     * @return \Illuminate\Support\Fluent<string,mixed>
+     * @return \LaravelCassandraDriver\Schema\ColumnDefinition
      */
     public function inet($column) {
         return $this->addColumn('inet', $column);
@@ -423,7 +536,7 @@ class Blueprint extends BaseBlueprint {
      * Create a new int column on the table.
      *
      * @param string $column
-     * @return \Illuminate\Support\Fluent<string,mixed>
+     * @return \LaravelCassandraDriver\Schema\ColumnDefinition
      */
     public function int($column) {
         return $this->addColumn('int', $column);
@@ -435,7 +548,7 @@ class Blueprint extends BaseBlueprint {
      * @param  string  $column
      * @param  bool  $autoIncrement
      * @param  bool  $unsigned
-     * @return \Illuminate\Database\Schema\ColumnDefinition
+     * @return \LaravelCassandraDriver\Schema\ColumnDefinition
      */
     public function integer($column, $autoIncrement = false, $unsigned = false) {
         return $this->addColumn('int', $column);
@@ -445,7 +558,7 @@ class Blueprint extends BaseBlueprint {
      * Create a new auto-incrementing integer (4-byte) column on the table.
      *
      * @param  string  $column
-     * @return \Illuminate\Database\Schema\ColumnDefinition
+     * @return \LaravelCassandraDriver\Schema\ColumnDefinition
      */
     public function integerIncrements($column) {
         throw new RuntimeException('This database driver does not support auto-increment columns.');
@@ -455,17 +568,17 @@ class Blueprint extends BaseBlueprint {
       * Create a new IP address column on the table.
       *
       * @param  string  $column
-      * @return \Illuminate\Database\Schema\ColumnDefinition
+      * @return \LaravelCassandraDriver\Schema\ColumnDefinition
       */
     public function ipAddress($column = 'ip_address') {
-        throw new RuntimeException('This database driver does not support ip address columns.');
+        return $this->addColumn('inet', $column);
     }
 
     /**
      * Create a new json column on the table.
      *
      * @param  string  $column
-     * @return \Illuminate\Database\Schema\ColumnDefinition
+     * @return \LaravelCassandraDriver\Schema\ColumnDefinition
      */
     public function json($column) {
         throw new RuntimeException('This database driver does not support json columns.');
@@ -475,7 +588,7 @@ class Blueprint extends BaseBlueprint {
      * Create a new jsonb column on the table.
      *
      * @param  string  $column
-     * @return \Illuminate\Database\Schema\ColumnDefinition
+     * @return \LaravelCassandraDriver\Schema\ColumnDefinition
      */
     public function jsonb($column) {
         throw new RuntimeException('This database driver does not support jsonb columns.');
@@ -486,7 +599,18 @@ class Blueprint extends BaseBlueprint {
      *
      * @param string $column
      * @param string $collectionType
-     * @return \Illuminate\Support\Fluent<string,mixed>
+     * @return \LaravelCassandraDriver\Schema\ColumnDefinition
+     */
+    public function list($column, $collectionType) {
+        return $this->addColumn('list', $column, compact('collectionType'));
+    }
+
+    /**
+     * Create a new list column on the table.
+     *
+     * @param string $column
+     * @param string $collectionType
+     * @return \LaravelCassandraDriver\Schema\ColumnDefinition
      */
     public function listCollection($column, $collectionType) {
         return $this->addColumn('list', $column, compact('collectionType'));
@@ -496,10 +620,20 @@ class Blueprint extends BaseBlueprint {
      * Create a new long text column on the table.
      *
      * @param  string  $column
-     * @return \Illuminate\Database\Schema\ColumnDefinition
+     * @return \LaravelCassandraDriver\Schema\ColumnDefinition
      */
     public function longText($column) {
         return $this->addColumn('varchar', $column);
+    }
+
+    /**
+     * Create a new MAC address column on the table.
+     *
+     * @param  string  $column
+     * @return \LaravelCassandraDriver\Schema\ColumnDefinition
+     */
+    public function macAddress($column = 'mac_address') {
+        return $this->text($column);
     }
 
     /**
@@ -508,7 +642,7 @@ class Blueprint extends BaseBlueprint {
      * @param string $column
      * @param string $collectionType1
      * @param string $collectionType2
-     * @return \Illuminate\Support\Fluent<string,mixed>
+     * @return \LaravelCassandraDriver\Schema\ColumnDefinition
      */
     public function mapCollection($column, $collectionType1, $collectionType2) {
         return $this->addColumn('map', $column, compact('collectionType1', 'collectionType2'));
@@ -518,7 +652,7 @@ class Blueprint extends BaseBlueprint {
      * Create a new auto-incrementing medium integer (3-byte) column on the table.
      *
      * @param  string  $column
-     * @return \Illuminate\Database\Schema\ColumnDefinition
+     * @return \LaravelCassandraDriver\Schema\ColumnDefinition
      */
     public function mediumIncrements($column) {
         throw new RuntimeException('This database driver does not support auto-increment columns.');
@@ -530,7 +664,7 @@ class Blueprint extends BaseBlueprint {
      * @param  string  $column
      * @param  bool  $autoIncrement
      * @param  bool  $unsigned
-     * @return \Illuminate\Database\Schema\ColumnDefinition
+     * @return \LaravelCassandraDriver\Schema\ColumnDefinition
      */
     public function mediumInteger($column, $autoIncrement = false, $unsigned = false) {
         throw new RuntimeException('This database driver does not support medium integer (3-byte) columns.');
@@ -540,7 +674,7 @@ class Blueprint extends BaseBlueprint {
      * Create a new medium text column on the table.
      *
      * @param  string  $column
-     * @return \Illuminate\Database\Schema\ColumnDefinition
+     * @return \LaravelCassandraDriver\Schema\ColumnDefinition
      */
     public function mediumText($column) {
         return $this->addColumn('varchar', $column);
@@ -552,11 +686,14 @@ class Blueprint extends BaseBlueprint {
      * @param  string|array<mixed>  $columns
      * @param  string|null  $name
      * @param  string|null  $algorithm
-     * @return \Illuminate\Support\Fluent<string,mixed>
+     * @return \Illuminate\Database\Schema\IndexDefinition
      */
     public function partition($columns, $name = null, $algorithm = null) {
 
-        return $this->indexCommand('partition', $columns, $name ?? '', $algorithm);
+        /** @var \Illuminate\Database\Schema\IndexDefinition $index */
+        $index = $this->indexCommand('partition', $columns, $name ?? '', $algorithm);
+
+        return $index;
     }
 
     /**
@@ -565,17 +702,21 @@ class Blueprint extends BaseBlueprint {
      * @param  string|array<mixed>  $columns
      * @param  string|null  $name
      * @param  string|null  $algorithm
-     * @return \Illuminate\Support\Fluent<string,mixed>
+     * @return \Illuminate\Database\Schema\IndexDefinition
      */
     public function primary($columns, $name = null, $algorithm = null) {
-        return $this->indexCommand('partition', $columns, $name ?? '', $algorithm);
+
+        /** @var \Illuminate\Database\Schema\IndexDefinition $index */
+        $index = $this->indexCommand('partition', $columns, $name ?? '', $algorithm);
+
+        return $index;
     }
 
     /**
      * Rename the table to a given name.
      *
      * @param  string  $to
-     * @return \Illuminate\Support\Fluent<string,mixed>
+     * @return \LaravelCassandraDriver\Schema\ColumnDefinition
      */
     public function rename($to) {
         throw new RuntimeException('This database driver does not support renaming tables.');
@@ -586,7 +727,7 @@ class Blueprint extends BaseBlueprint {
      *
      * @param  string  $from
      * @param  string  $to
-     * @return \Illuminate\Support\Fluent<string,mixed>
+     * @return \Illuminate\Database\Schema\IndexDefinition
      */
     public function renameIndex($from, $to) {
         throw new RuntimeException('This database driver does not renaming indexes.');
@@ -595,9 +736,20 @@ class Blueprint extends BaseBlueprint {
     /**
      * Create a new set column on the table.
      *
+     * @param  string  $column
+     * @param  array<mixed>  $allowed
+     * @return \LaravelCassandraDriver\Schema\ColumnDefinition
+     */
+    public function set($column, array $allowed) {
+        throw new RuntimeException('This database driver does not support set columns. You can use setCollection instead.');
+    }
+
+    /**
+     * Create a new set column on the table.
+     *
      * @param string $column
      * @param string $collectionType
-     * @return \Illuminate\Support\Fluent<string,mixed>
+     * @return \LaravelCassandraDriver\Schema\ColumnDefinition
      */
     public function setCollection($column, $collectionType) {
         return $this->addColumn('set', $column, compact('collectionType'));
@@ -607,17 +759,17 @@ class Blueprint extends BaseBlueprint {
      * Create a new auto-incrementing small integer (2-byte) column on the table.
      *
      * @param  string  $column
-     * @return \Illuminate\Database\Schema\ColumnDefinition
+     * @return \LaravelCassandraDriver\Schema\ColumnDefinition
      */
     public function smallIncrements($column) {
-        return $this->unsignedSmallInteger($column, true);
+        throw new RuntimeException('This database driver does not support auto-increment columns.');
     }
 
     /**
      * Create a new smallint column on the table.
      *
      * @param string $column
-     * @return \Illuminate\Support\Fluent<string,mixed>
+     * @return \LaravelCassandraDriver\Schema\ColumnDefinition
      */
     public function smallint($column) {
         return $this->addColumn('smallint', $column);
@@ -629,7 +781,7 @@ class Blueprint extends BaseBlueprint {
      * @param  string  $column
      * @param  bool  $autoIncrement
      * @param  bool  $unsigned
-     * @return \Illuminate\Database\Schema\ColumnDefinition
+     * @return \LaravelCassandraDriver\Schema\ColumnDefinition
      */
     public function smallInteger($column, $autoIncrement = false, $unsigned = false) {
         return $this->addColumn('smallint', $column);
@@ -651,7 +803,7 @@ class Blueprint extends BaseBlueprint {
      *
      * @param  string  $column
      * @param  int|null  $length
-     * @return \Illuminate\Database\Schema\ColumnDefinition
+     * @return \LaravelCassandraDriver\Schema\ColumnDefinition
      */
     public function string($column, $length = null) {
         $length = $length ?: Builder::$defaultStringLength;
@@ -669,11 +821,21 @@ class Blueprint extends BaseBlueprint {
     }
 
     /**
+     * Create a new text column on the table.
+     *
+     * @param  string  $column
+     * @return \LaravelCassandraDriver\Schema\ColumnDefinition
+     */
+    public function text($column) {
+        return $this->addColumn('varchar', $column);
+    }
+
+    /**
      * Create a new time column on the table.
      *
      * @param  string  $column
      * @param  int|null  $precision
-     * @return \Illuminate\Database\Schema\ColumnDefinition
+     * @return \LaravelCassandraDriver\Schema\ColumnDefinition
      */
     public function time($column, $precision = null) {
         return $this->addColumn('time', $column);
@@ -683,7 +845,7 @@ class Blueprint extends BaseBlueprint {
      * Create a new timestamp column on the table.
      *
      * @param string $column
-     * @return \Illuminate\Support\Fluent<string,mixed>
+     * @return \LaravelCassandraDriver\Schema\ColumnDefinition
      */
     public function timestamp($column, $precision = null) {
         return $this->addColumn('timestamp', $column);
@@ -694,7 +856,7 @@ class Blueprint extends BaseBlueprint {
      *
      * @param  string  $column
      * @param  int|null  $precision
-     * @return \Illuminate\Database\Schema\ColumnDefinition
+     * @return \LaravelCassandraDriver\Schema\ColumnDefinition
      */
     public function timestampTz($column, $precision = null) {
         return $this->addColumn('timestamp', $column);
@@ -705,7 +867,7 @@ class Blueprint extends BaseBlueprint {
      *
      * @param  string  $column
      * @param  int|null  $precision
-     * @return \Illuminate\Database\Schema\ColumnDefinition
+     * @return \LaravelCassandraDriver\Schema\ColumnDefinition
      */
     public function timeTz($column, $precision = null) {
         return $this->addColumn('time', $column);
@@ -715,7 +877,7 @@ class Blueprint extends BaseBlueprint {
      * Create a new timeuuid column on the table.
      *
      * @param string $column
-     * @return \Illuminate\Support\Fluent<string,mixed>
+     * @return \LaravelCassandraDriver\Schema\ColumnDefinition
      */
     public function timeuuid($column) {
         return $this->addColumn('timeuuid', $column);
@@ -725,7 +887,7 @@ class Blueprint extends BaseBlueprint {
      * Create a new auto-incrementing tiny integer (1-byte) column on the table.
      *
      * @param  string  $column
-     * @return \Illuminate\Database\Schema\ColumnDefinition
+     * @return \LaravelCassandraDriver\Schema\ColumnDefinition
      */
     public function tinyIncrements($column) {
         throw new RuntimeException('This database driver does not support auto-increment columns.');
@@ -735,7 +897,7 @@ class Blueprint extends BaseBlueprint {
      * Create a new tinyint column on the table.
      *
      * @param string $column
-     * @return \Illuminate\Support\Fluent<string,mixed>
+     * @return \LaravelCassandraDriver\Schema\ColumnDefinition
      */
     public function tinyint($column) {
         return $this->addColumn('tinyint', $column);
@@ -747,7 +909,7 @@ class Blueprint extends BaseBlueprint {
      * @param  string  $column
      * @param  bool  $autoIncrement
      * @param  bool  $unsigned
-     * @return \Illuminate\Database\Schema\ColumnDefinition
+     * @return \LaravelCassandraDriver\Schema\ColumnDefinition
      */
     public function tinyInteger($column, $autoIncrement = false, $unsigned = false) {
         return $this->addColumn('tinyint', $column);
@@ -757,7 +919,7 @@ class Blueprint extends BaseBlueprint {
      * Create a new tiny text column on the table.
      *
      * @param  string  $column
-     * @return \Illuminate\Database\Schema\ColumnDefinition
+     * @return \LaravelCassandraDriver\Schema\ColumnDefinition
      */
     public function tinyText($column) {
         return $this->addColumn('varchar', $column);
@@ -770,10 +932,21 @@ class Blueprint extends BaseBlueprint {
      * @param string $tuple1type
      * @param string $tuple2type
      * @param string $tuple3type
-     * @return \Illuminate\Support\Fluent<string,mixed>
+     * @return \LaravelCassandraDriver\Schema\ColumnDefinition
      */
     public function tuple($column, $tuple1type, $tuple2type, $tuple3type) {
         return $this->addColumn('tuple', $column, compact('tuple1type', 'tuple2type', 'tuple3type'));
+    }
+
+    /**
+     * Create a new ULID column on the table.
+     *
+     * @param  string  $column
+     * @param  int|null  $length
+     * @return \LaravelCassandraDriver\Schema\ColumnDefinition
+     */
+    public function ulid($column = 'ulid', $length = 26) {
+        return $this->char($column, $length);
     }
 
     /**
@@ -789,10 +962,75 @@ class Blueprint extends BaseBlueprint {
     }
 
     /**
+     * Create a new unsigned big integer (8-byte) column on the table.
+     *
+     * @param  string  $column
+     * @param  bool  $autoIncrement
+     * @return \LaravelCassandraDriver\Schema\ColumnDefinition
+     */
+    public function unsignedBigInteger($column, $autoIncrement = false) {
+        throw new RuntimeException('This database driver does not support auto-increment columns.');
+    }
+
+    /**
+     * Create a new unsigned integer (4-byte) column on the table.
+     *
+     * @param  string  $column
+     * @param  bool  $autoIncrement
+     * @return \LaravelCassandraDriver\Schema\ColumnDefinition
+     */
+    public function unsignedInteger($column, $autoIncrement = false) {
+        throw new RuntimeException('This database driver does not support unsigned integer columns.');
+    }
+
+    /**
+     * Create a new unsigned medium integer (3-byte) column on the table.
+     *
+     * @param  string  $column
+     * @param  bool  $autoIncrement
+     * @return \LaravelCassandraDriver\Schema\ColumnDefinition
+     */
+    public function unsignedMediumInteger($column, $autoIncrement = false) {
+        throw new RuntimeException('This database driver does not support auto-increment columns.');
+    }
+
+    /**
+     * Create a new unsigned small integer (2-byte) column on the table.
+     *
+     * @param  string  $column
+     * @param  bool  $autoIncrement
+     * @return \LaravelCassandraDriver\Schema\ColumnDefinition
+     */
+    public function unsignedSmallInteger($column, $autoIncrement = false) {
+        throw new RuntimeException('This database driver does not support auto-increment columns.');
+    }
+
+    /**
+     * Create a new unsigned tiny integer (1-byte) column on the table.
+     *
+     * @param  string  $column
+     * @param  bool  $autoIncrement
+     * @return \LaravelCassandraDriver\Schema\ColumnDefinition
+     */
+    public function unsignedTinyInteger($column, $autoIncrement = false) {
+        throw new RuntimeException('This database driver does not support auto-increment columns.');
+    }
+
+    /**
+     * Create a new UUID column on the table.
+     *
+     * @param  string  $column
+     * @return \LaravelCassandraDriver\Schema\ColumnDefinition
+     */
+    public function uuid($column = 'uuid') {
+        return $this->addColumn('uuid', $column);
+    }
+
+    /**
      * Create a new varchar column on the table.
      *
      * @param string $column
-     * @return \Illuminate\Support\Fluent<string,mixed>
+     * @return \LaravelCassandraDriver\Schema\ColumnDefinition
      */
     public function varchar($column) {
         return $this->addColumn('varchar', $column);
@@ -802,16 +1040,27 @@ class Blueprint extends BaseBlueprint {
      * Create a new varint column on the table.
      *
      * @param string $column
-     * @return \Illuminate\Support\Fluent<string,mixed>
+     * @return \LaravelCassandraDriver\Schema\ColumnDefinition
      */
     public function varint($column) {
         return $this->addColumn('varint', $column);
+    }
+
+    /**
+     * Create a new vector column on the table.
+     *
+     * @param  string  $column
+     * @param  int|null  $dimensions
+     * @return \LaravelCassandraDriver\Schema\ColumnDefinition
+     */
+    public function vector($column, $dimensions = null) {
+        throw new RuntimeException('This database driver does not support vector columns. You can use setCollection instead.');
     }
     /**
      * Create a new year column on the table.
      *
      * @param  string  $column
-     * @return \Illuminate\Database\Schema\ColumnDefinition
+     * @return \LaravelCassandraDriver\Schema\ColumnDefinition
      */
     public function year($column) {
         return $this->addColumn('date', $column);

@@ -59,7 +59,7 @@ class Builder extends BaseBuilder {
             throw new RuntimeException('Invalid grammar selected.');
         }
 
-        return $this->connection->statement(
+        return $this->connection->unprepared(
             $this->grammar->compileCreateKeyspace($name, $replication)
         );
     }
@@ -77,9 +77,18 @@ class Builder extends BaseBuilder {
             throw new RuntimeException('Invalid grammar selected.');
         }
 
-        return $this->connection->statement(
+        return $this->connection->unprepared(
             $this->grammar->compileCreateKeyspace($name, $replication, true)
         );
+    }
+
+    /**
+     * Disable foreign key constraints.
+     *
+     * @return bool
+     */
+    public function disableForeignKeyConstraints() {
+        throw new RuntimeException('This database engine does not support foreign keys.');
     }
 
     /**
@@ -95,7 +104,7 @@ class Builder extends BaseBuilder {
         }
 
         foreach ($tables as $table) {
-            $this->connection->statement('drop table if exists ' . $this->grammar->wrapTable($table));
+            $this->connection->unprepared('drop table if exists ' . $this->grammar->wrapTable($table));
         }
     }
 
@@ -110,6 +119,23 @@ class Builder extends BaseBuilder {
     }
 
     /**
+     * Drop a keyspace from the schema
+     *
+     * @param  string  $name
+     * @return bool
+     */
+    public function dropKeyspace($name) {
+
+        if (!$this->grammar instanceof Grammar) {
+            throw new RuntimeException('Invalid grammar selected.');
+        }
+
+        return $this->connection->unprepared(
+            $this->grammar->compileDropKeyspace($name)
+        );
+    }
+
+    /**
      * Drop a keyspace from the schema if the keyspace exists.
      *
      * @param  string  $name
@@ -121,9 +147,18 @@ class Builder extends BaseBuilder {
             throw new RuntimeException('Invalid grammar selected.');
         }
 
-        return $this->connection->statement(
+        return $this->connection->unprepared(
             $this->grammar->compileDropKeyspaceIfExists($name)
         );
+    }
+
+    /**
+     * Enable foreign key constraints.
+     *
+     * @return bool
+     */
+    public function enableForeignKeyConstraints() {
+        throw new RuntimeException('This database engine does not support foreign keys.');
     }
 
     /**
