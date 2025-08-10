@@ -67,7 +67,6 @@ The tests use the following environment variables:
 DB_CONNECTION=cassandra
 DB_HOST=127.0.0.1
 DB_PORT=9042
-DB_DATABASE=test_keyspace
 DB_USERNAME=
 DB_PASSWORD=
 ```
@@ -219,11 +218,7 @@ timeout 300 bash -c 'until docker exec cassandra-test cqlsh -e "describe keyspac
 ```
 
 ### Test Database Cleanup
-Tests automatically clean up created tables, but you can manually reset:
-
-```bash
-docker exec cassandra-test cqlsh -e "DROP KEYSPACE IF EXISTS test_keyspace;"
-```
+Tests automatically clean up created tables and keyspaces.
 
 ### Memory Issues
 If you encounter memory issues:

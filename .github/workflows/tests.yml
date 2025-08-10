@@ -60,16 +60,6 @@ jobs:
       run: |
         timeout 300 bash -c 'until docker exec $(docker ps -q --filter ancestor=cassandra:${{ matrix.cassandra }}) cqlsh -e "describe keyspaces"; do sleep 5; done'
 
-    - name: Initialize Cassandra
-      run: |
-        docker exec $(docker ps -q --filter ancestor=cassandra:${{ matrix.cassandra }}) cqlsh -f /dev/stdin <<'EOF'
-        CREATE KEYSPACE IF NOT EXISTS test_keyspace
-        WITH REPLICATION = {
-            'class': 'SimpleStrategy',
-            'replication_factor': 1
-        };
-        EOF
-
     - name: Run PHPStan
       run: composer run-script phpstan
 
@@ -82,7 +72,6 @@ jobs:
         DB_CONNECTION: cassandra
         DB_HOST: 127.0.0.1
         DB_PORT: 9042
-        DB_DATABASE: test_keyspace
 
     - name: Run tests with coverage
       if: matrix.php == '8.3' && matrix.cassandra == '4.1'
@@ -91,7 +80,6 @@ jobs:
         DB_CONNECTION: cassandra
         DB_HOST: 127.0.0.1
         DB_PORT: 9042
-        DB_DATABASE: test_keyspace
 
   integration-test:
     runs-on: ubuntu-latest
@@ -123,7 +111,6 @@ jobs:
         DB_CONNECTION: cassandra
         DB_HOST: 127.0.0.1
         DB_PORT: 9042
-        DB_DATABASE: test_keyspace
 
     - name: Stop Cassandra
       if: always()

@@ -1,5 +1,9 @@
 
-https://cassandra.apache.org/doc/5.0/cassandra/developing/cql/index.html
+- Improve keyspace handling
+
+- Test warnings
+- Frozen columns
+- https://cassandra.apache.org/doc/5.0/cassandra/developing/cql/index.html
 
 
 Data Definition (DDL)

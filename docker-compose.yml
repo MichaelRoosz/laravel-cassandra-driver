@@ -25,12 +25,10 @@ services:
     depends_on:
       cassandra:
         condition: service_healthy
-    volumes:
-      - ./tests/docker/init.cql:/init.cql:ro
     command: >
       bash -c "
         echo 'Waiting for Cassandra to be ready...' &&
-        until cqlsh cassandra -f /init.cql; do
+        until cqlsh cassandra -e 'describe keyspaces'; do
           echo 'Cassandra not ready yet, waiting 5 seconds...'
           sleep 5
         done &&
