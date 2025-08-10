@@ -132,7 +132,8 @@ class Grammar extends BaseGrammar {
                 throw new RuntimeException('replication config must be an array of strings, integers or floats.');
             }
 
-            $replicationOptions[] = "'{$key}': {$value}";
+            $wrappedValue = is_string($value) ? $this->quoteString($value) : $value;
+            $replicationOptions[] = "'{$key}': {$wrappedValue}";
         }
 
         return sprintf(
@@ -210,6 +211,19 @@ class Grammar extends BaseGrammar {
         $index = $this->wrap($blueprint->getTable() . '_' . $indexInfo . '_index');
 
         return "drop index {$index}";
+    }
+
+    /**
+     * Compile a drop keyspace command.
+     *
+     * @param  string  $name
+     * @return string
+     */
+    public function compileDropKeyspace($name) {
+        return sprintf(
+            'drop keyspace %s',
+            $this->wrapValue($name)
+        );
     }
 
     /**
@@ -364,6 +378,20 @@ class Grammar extends BaseGrammar {
             . 'from system_schema.views where keyspace_name = %s',
             $this->quoteString($keyspace)
         );
+    }
+
+    /**
+     * Quote the given string literal.
+     *
+     * @param  string|array<string>  $value
+     * @return string
+     */
+    public function quoteString($value) {
+        if (is_array($value)) {
+            return implode(', ', array_map([$this, __FUNCTION__], $value));
+        }
+
+        return "'" . str_replace("'", "''", $value) . "'";
     }
 
     /**

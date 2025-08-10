@@ -9,6 +9,7 @@ use Illuminate\Database\Query\Builder as BaseBuilder;
 use Illuminate\Database\Connection as BaseConnection;
 use Illuminate\Support\Collection;
 use InvalidArgumentException;
+use RuntimeException;
 
 class Grammar extends BaseGrammar {
     /**
@@ -45,24 +46,24 @@ class Grammar extends BaseGrammar {
         if ('set' == $type || 'list' == $type) {
             $collection = collect($value)->map(
                 function ($item, $key) {
-                    return is_string($item) ? "'" . $item . "'" : $item;
+                    return is_string($item) ? $this->quoteString($item) : $item;
                 }
             )->implode(', ');
         } elseif ('map' == $type) {
             $collection = collect($value)->map(
                 function ($item, $key) use ($isAssociative) {
 
-                    if (!is_scalar($item)) {
-                        throw new InvalidArgumentException('Map values should be scalar');
+                    if (!is_numeric($item) && !is_string($item)) {
+                        throw new InvalidArgumentException('Map values should be numeric or string');
                     }
 
                     if ($isAssociative === true) {
-                        $key = is_string($key) ? "'" . $key . "'" : $key;
-                        $item = is_string($item) ? "'" . $item . "'" : $item;
+                        $key = is_string($key) ? $this->quoteString($key) : $key;
+                        $item = is_string($item) ? $this->quoteString($item) : $item;
 
                         return $key . ':' . $item;
                     } else {
-                        return is_numeric($item) ? $item : "'" . $item . "'";
+                        return is_numeric($item) ? $item : $this->quoteString($item);
                     }
                 }
             )->implode(', ');
@@ -267,6 +268,20 @@ class Grammar extends BaseGrammar {
     }
 
     /**
+     * Quote the given string literal.
+     *
+     * @param  string|array<string>  $value
+     * @return string
+     */
+    public function quoteString($value) {
+        if (is_array($value)) {
+            return implode(', ', array_map([$this, __FUNCTION__], $value));
+        }
+
+        return "'" . str_replace("'", "''", $value) . "'";
+    }
+
+    /**
      * Wrap a table in keyword identifiers.
      *
      * @param  \Illuminate\Contracts\Database\Query\Expression|string  $table
@@ -305,5 +320,112 @@ class Grammar extends BaseGrammar {
      */
     protected function compileLock(BaseBuilder $query, $value) {
         return '';
+    }
+
+    /**
+     * Compile a "between" where clause.
+     *
+     * @param  \Illuminate\Database\Query\Builder  $query
+     * @param  array<mixed>  $where
+     * @return string
+     */
+    protected function whereBetween(BaseBuilder $query, $where) {
+        throw new RuntimeException('whereBetween is not supported by Cassandra');
+    }
+
+    /**
+     * Compile a "between" where clause.
+     *
+     * @param  \Illuminate\Database\Query\Builder  $query
+     * @param  array<mixed>  $where
+     * @return string
+     */
+    protected function whereBetweenColumns(BaseBuilder $query, $where) {
+        throw new RuntimeException('whereBetweenColumns is not supported by Cassandra');
+    }
+
+    /**
+     * Compile a "where contains" clause.
+     *
+     * @param  \Illuminate\Database\Query\Builder  $query
+     * @param  array<mixed>  $where
+     * @return string
+     */
+    protected function whereContains(BaseBuilder $query, $where) {
+
+        $where['operator'] = 'contains';
+
+        return $this->whereBasic($query, $where);
+    }
+
+    /**
+     * Compile a "where contains key" clause.
+     *
+     * @param  \Illuminate\Database\Query\Builder  $query
+     * @param  array<mixed>  $where
+     * @return string
+     */
+    protected function whereContainsKey(BaseBuilder $query, $where) {
+
+        $where['operator'] = 'contains key';
+
+        return $this->whereBasic($query, $where);
+    }
+
+    /**
+     * Compile a "where like" clause.
+     *
+     * @param  \Illuminate\Database\Query\Builder  $query
+     * @param  array<mixed>  $where
+     * @return string
+     */
+    protected function whereLike(BaseBuilder $query, $where) {
+        throw new RuntimeException('whereLike is not supported by Cassandra');
+    }
+
+    /**
+     * Compile a "where not in" clause.
+     *
+     * @param  \Illuminate\Database\Query\Builder  $query
+     * @param  array<mixed>  $where
+     * @return string
+     */
+    protected function whereNotIn(BaseBuilder $query, $where) {
+        throw new RuntimeException('whereNotIn is not supported by Cassandra');
+    }
+
+    /**
+     * Compile a "where not in raw" clause.
+     *
+     * For safety, whereIntegerInRaw ensures this method is only used with integer values.
+     *
+     * @param  \Illuminate\Database\Query\Builder  $query
+     * @param  array<mixed>  $where
+     * @return string
+     */
+    protected function whereNotInRaw(BaseBuilder $query, $where) {
+        throw new RuntimeException('whereNotInRaw is not supported by Cassandra');
+    }
+
+    /**
+     * Compile a "where not null" clause.
+     *
+     * @param  \Illuminate\Database\Query\Builder  $query
+     * @param  array<mixed>  $where
+     * @return string
+     */
+    protected function whereNotNull(BaseBuilder $query, $where) {
+        throw new RuntimeException('whereNotNull is not supported by Cassandra');
+    }
+
+    /**
+     * Compile a "where null" clause.
+     *
+     * @param  \Illuminate\Database\Query\Builder  $query
+     * @param  array<mixed>  $where
+     * @return string
+     */
+    protected function whereNull(BaseBuilder $query, $where) {
+        throw new RuntimeException('whereNull is not supported by Cassandra');
     }
 }

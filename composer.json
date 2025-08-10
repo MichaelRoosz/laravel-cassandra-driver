@@ -44,7 +44,7 @@
     "require": {
         "php": ">=8.2",
         "laravel/framework": "^11",
-        "mroosz/php-cassandra": "^0.8.1"
+        "mroosz/php-cassandra": "^0.9.0"
     },
     "require-dev": {
         "friendsofphp/php-cs-fixer": "^3.75.0",
@@ -54,8 +54,8 @@
         "mockery/mockery": "^1.6"
     },
     "scripts": {
-        "lint": "vendor/bin/php-cs-fixer check",
-        "lint-fix": "vendor/bin/php-cs-fixer fix",
+        "lint": "PHP_CS_FIXER_IGNORE_ENV=1 vendor/bin/php-cs-fixer check",
+        "lint-fix": "PHP_CS_FIXER_IGNORE_ENV=1 vendor/bin/php-cs-fixer fix",
         "phpstan": "vendor/bin/phpstan analyse --memory-limit=1G",
         "test": "vendor/bin/phpunit",
         "test-coverage": "vendor/bin/phpunit --coverage-html coverage"
