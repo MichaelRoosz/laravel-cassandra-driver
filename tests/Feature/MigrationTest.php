@@ -19,7 +19,7 @@ class MigrationTest extends TestCase {
         parent::setUp();
 
         $this->repository = new CassandraMigrationRepository(
-            $this->app['db'], /** @phpstan-ignore offsetAccess.notFound */
+            $this->app['db'], /** @phpstan-ignore-line */
             'migrations'
         );
     }

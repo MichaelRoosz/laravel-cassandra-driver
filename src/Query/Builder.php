@@ -14,16 +14,34 @@ use RuntimeException;
 
 class Builder extends BaseBuilder {
     public bool $allowFiltering = false;
+
     /**
      * The current query value bindings.
      *
-     * @var array<string,array<mixed>>
+     * @var array{
+     *     select: list<mixed>,
+     *     from: list<mixed>,
+     *     join: list<mixed>,
+     *     where: list<mixed>,
+     *     groupBy: list<mixed>,
+     *     having: list<mixed>,
+     *     order: list<mixed>,
+     *     union: list<mixed>,
+     *     unionOrder: list<mixed>,
+     *     updateCollection: list<mixed>,
+     *     insertCollection: list<mixed>,
+     * }
      */
     public $bindings = [
         'select' => [],
         'from' => [],
+        'join' => [], // not supported by Cassandra
         'where' => [],
-        'order' => [],
+        'groupBy' => [], // not supported by Cassandra
+        'having' => [], // not supported by Cassandra
+        'order' => [], // not supported by Cassandra
+        'union' => [], // not supported by Cassandra
+        'unionOrder' => [], // not supported by Cassandra
         'updateCollection' => [],
         'insertCollection' => [],
     ];

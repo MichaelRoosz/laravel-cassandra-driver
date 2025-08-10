@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace LaravelCassandraDriver\Schema;
 
 use Illuminate\Database\Schema\Blueprint as BaseBlueprint;
+use Illuminate\Database\Connection as BaseConnection;
+use Illuminate\Database\Schema\Grammars\Grammar as BaseGrammar;
 use RuntimeException;
 
 class Blueprint extends BaseBlueprint {
@@ -102,11 +104,13 @@ class Blueprint extends BaseBlueprint {
     /**
      * Execute the blueprint against the database.
      *
+     * @param  \Illuminate\Database\Connection  $connection
+     * @param  \Illuminate\Database\Schema\Grammars\Grammar  $grammar
      * @return void
      */
-    public function build() {
-        foreach ($this->toSql() as $statement) {
-            $this->connection->unprepared($statement);
+    public function build(BaseConnection $connection, BaseGrammar $grammar) {
+        foreach ($this->toSql($connection, $grammar) as $statement) {
+            $connection->unprepared($statement);
         }
     }
 
@@ -1073,7 +1077,7 @@ class Blueprint extends BaseBlueprint {
      * @param  \Illuminate\Database\Schema\Grammars\Grammar  $grammar
      * @return void
      */
-    protected function addFluentIndexes(Connection $connection, Grammar $grammar) {
+    protected function addFluentIndexes(BaseConnection $connection, BaseGrammar $grammar) {
         foreach ($this->columns as $column) {
             foreach (['partition', 'clustering', 'primary', 'unique', 'index', 'fulltext', 'fullText', 'spatialIndex'] as $index) {
 

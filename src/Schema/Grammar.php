@@ -10,6 +10,7 @@ use Illuminate\Database\Schema\Grammars\Grammar as BaseGrammar;
 use Illuminate\Support\Fluent;
 use Illuminate\Database\Schema\Blueprint as BaseBlueprint;
 use Illuminate\Database\Schema\ColumnDefinition;
+use Illuminate\Database\Connection as BaseConnection;
 
 class Grammar extends BaseGrammar {
     /**
