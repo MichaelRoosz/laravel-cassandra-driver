@@ -37,7 +37,8 @@
     },
     "autoload-dev": {
         "psr-4": {
-            "LaravelCassandraDriver\\Tests\\": "tests/"
+            "LaravelCassandraDriver\\Tests\\": "tests/",
+            "Cassandra\\": "../lp-php-cassandra/src/"
         }
     },
     "prefer-stable": true,

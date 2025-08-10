@@ -84,9 +84,9 @@ class BlueprintTest extends TestCase {
         $tableName = 'test_clustering_' . uniqid();
 
         Schema::create($tableName, function (Blueprint $table) {
-            $table->uuid('user_id')->partition(); /** @phpstan-ignore method.notFound */
-            $table->timestamp('created_at')->clustering('DESC'); /** @phpstan-ignore method.notFound */
-            $table->uuid('post_id')->clustering('ASC'); /** @phpstan-ignore method.notFound */
+            $table->uuid('user_id')->partition();
+            $table->timestamp('created_at')->clustering('DESC');
+            $table->uuid('post_id')->clustering('ASC');
             $table->varchar('title');
         });
 
@@ -170,10 +170,10 @@ class BlueprintTest extends TestCase {
         $tableName = 'test_complex_' . uniqid();
 
         Schema::create($tableName, function (Blueprint $table) {
-            $table->uuid('tenant_id')->partition(); /** @phpstan-ignore method.notFound */
-            $table->uuid('user_id')->partition(); /** @phpstan-ignore method.notFound */
-            $table->timestamp('created_date')->clustering('DESC'); /** @phpstan-ignore method.notFound */
-            $table->uuid('event_id')->clustering('ASC'); /** @phpstan-ignore method.notFound */
+            $table->uuid('tenant_id')->partition();
+            $table->uuid('user_id')->partition();
+            $table->timestamp('created_date')->clustering('DESC');
+            $table->uuid('event_id')->clustering('ASC');
             $table->varchar('event_type');
             $table->text('payload');
             $table->setCollection('tags', 'text');
@@ -406,10 +406,10 @@ class BlueprintTest extends TestCase {
         $tableName = 'test_multi_clustering_' . uniqid();
 
         Schema::create($tableName, function (Blueprint $table) {
-            $table->uuid('partition_key')->partition(); /** @phpstan-ignore method.notFound */
-            $table->timestamp('created_date')->clustering('DESC'); /** @phpstan-ignore method.notFound */
-            $table->uuid('event_id')->clustering('ASC'); /** @phpstan-ignore method.notFound */
-            $table->varchar('event_type')->clustering(); /** @phpstan-ignore method.notFound */
+            $table->uuid('partition_key')->partition();
+            $table->timestamp('created_date')->clustering('DESC');
+            $table->uuid('event_id')->clustering('ASC');
+            $table->varchar('event_type')->clustering();
             $table->text('payload');
         });
 
@@ -423,10 +423,10 @@ class BlueprintTest extends TestCase {
         $tableName = 'test_multi_partition_' . uniqid();
 
         Schema::create($tableName, function (Blueprint $table) {
-            $table->uuid('tenant_id')->partition(); /** @phpstan-ignore method.notFound */
-            $table->uuid('user_id')->partition(); /** @phpstan-ignore method.notFound */
-            $table->uuid('session_id')->partition(); /** @phpstan-ignore method.notFound */
-            $table->timestamp('created_at')->clustering('DESC'); /** @phpstan-ignore method.notFound */
+            $table->uuid('tenant_id')->partition();
+            $table->uuid('user_id')->partition();
+            $table->uuid('session_id')->partition();
+            $table->timestamp('created_at')->clustering('DESC');
             $table->varchar('action');
             $table->text('data');
         });
@@ -441,8 +441,8 @@ class BlueprintTest extends TestCase {
         $tableName = 'test_partition_' . uniqid();
 
         Schema::create($tableName, function (Blueprint $table) {
-            $table->uuid('user_id')->partition(); /** @phpstan-ignore method.notFound */
-            $table->uuid('post_id')->partition(); /** @phpstan-ignore method.notFound */
+            $table->uuid('user_id')->partition();
+            $table->uuid('post_id')->partition();
             $table->varchar('title');
             $table->text('content');
         });
@@ -498,8 +498,8 @@ class BlueprintTest extends TestCase {
         $tableName = 'test_static_columns_' . uniqid();
 
         Schema::create($tableName, function (Blueprint $table) {
-            $table->uuid('partition_key')->partition(); /** @phpstan-ignore method.notFound */
-            $table->uuid('clustering_key')->clustering(); /** @phpstan-ignore method.notFound */
+            $table->uuid('partition_key')->partition();
+            $table->uuid('clustering_key')->clustering();
             // Static columns are used in Cassandra for columns that are shared across all rows in a partition
             $table->varchar('static_data');
             $table->text('regular_data');
