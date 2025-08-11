@@ -15,6 +15,7 @@ use InvalidArgumentException;
 use LaravelCassandraDriver\Schema\Blueprint;
 use Ramsey\Uuid\Uuid;
 use RuntimeException;
+use Cassandra\Type\Date as CassandraDate;
 
 class BuilderTest extends TestCase {
     protected string $testTable;
@@ -312,6 +313,36 @@ class BuilderTest extends TestCase {
         $count = DB::table($this->testTable)->count();
 
         $this->assertGreaterThanOrEqual(3, $count);
+    }
+
+    public function testDateTypeRoundTrip(): void {
+        $tableName = 'test_date_type_' . uniqid();
+
+        Schema::create($tableName, function (Blueprint $table) {
+            $table->uuid('id')->primary();
+            $table->date('d');
+        });
+
+        $id = Uuid::uuid4()->toString();
+        $savedDate = '2025-01-02';
+
+        DB::table($tableName)->insert([
+            'id' => $id,
+            'd' => $savedDate,
+        ]);
+
+        $row = DB::table($tableName)->where('id', $id)->first();
+
+        $this->assertIsArray($row);
+        $this->assertArrayHasKey('d', $row);
+        $this->assertIsString($row['d']);
+
+        $this->assertSame(
+            '2025-01-02',
+            $row['d']
+        );
+
+        Schema::dropIfExists($tableName);
     }
 
     public function testDelete(): void {

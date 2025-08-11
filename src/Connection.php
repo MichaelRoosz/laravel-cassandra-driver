@@ -18,6 +18,8 @@ use Cassandra\Request\BatchType;
 use Cassandra\Request\Options\ExecuteOptions;
 use Cassandra\Response\Result\RowsResult;
 use Cassandra\Response\ResultKind;
+use Cassandra\Type as CassandraType;
+use Cassandra\Type\Date as CassandraDate;
 use Exception;
 use Illuminate\Database\QueryException;
 use Illuminate\Database\UniqueConstraintViolationException;
@@ -453,7 +455,7 @@ class Connection extends BaseConnection {
             $preparedBindings = $this->prepareBindings($bindings);
 
             $consistency = $this->mapConsistency($this->getConsistency());
-            $result = [];
+            $rows = [];
             $pagingState = null;
             do {
                 $options = new ExecuteOptions(
@@ -472,11 +474,20 @@ class Connection extends BaseConnection {
 
                 $pagingState = $currentResult->getMetadata()->pagingState;
 
-                $result = array_merge($result, $currentResult->fetchAll());
+                $rows = array_merge($rows, $currentResult->fetchAll());
 
             } while ($pagingState && $currentResult->hasMorePages());
 
-            return $result;
+            $metadata = $currentResult->getMetadata();
+            foreach ($metadata->columns ?? [] as $column) {
+                if ($column->type->type === CassandraType::DATE) {
+                    foreach ($rows as $index => $row) {
+                        $rows[$index][$column->name] = new CassandraDate($row[$column->name])->toString();
+                    }
+                }
+            }
+
+            return $rows;
         });
 
         if (!is_array($result)) {
