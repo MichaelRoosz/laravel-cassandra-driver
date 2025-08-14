@@ -1,39 +1,25 @@
 services:
   cassandra:
-    image: cassandra:4.1
-    container_name: cassandra-test
+    image: cassandra:${CASSANDRA_VERSION}
+    container_name: laravel-cassandra-driver-test-db
     ports:
       - "9042:9042"
-      - "7000:7000"
     environment:
-      - CASSANDRA_CLUSTER_NAME=TestCluster
-      - CASSANDRA_DC=datacenter1
-      - CASSANDRA_RACK=rack1
-      - CASSANDRA_ENDPOINT_SNITCH=GossipingPropertyFileSnitch
-      - CASSANDRA_NUM_TOKENS=128
-    volumes:
-      - cassandra_data:/var/lib/cassandra
+      - CASSANDRA_START_RPC=false
+      - MAX_HEAP_SIZE=512M
+      - HEAP_NEWSIZE=128M
     healthcheck:
-      test: ["CMD-SHELL", "cqlsh -e 'describe keyspaces' || exit 1"]
-      interval: 30s
-      timeout: 10s
-      retries: 5
-      start_period: 120s
+      test: ["CMD", "bash", "-lc", "cqlsh -e 'DESCRIBE KEYSPACES' 127.0.0.1 9042"]
+      interval: 10s
+      timeout: 5s
+      retries: 30
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    networks:
+      - laravel_cassandra_driver_net
 
-  cassandra-init:
-    image: cassandra:4.1
-    depends_on:
-      cassandra:
-        condition: service_healthy
-    command: >
-      bash -c "
-        echo 'Waiting for Cassandra to be ready...' &&
-        until cqlsh cassandra -e 'describe keyspaces'; do
-          echo 'Cassandra not ready yet, waiting 5 seconds...'
-          sleep 5
-        done &&
-        echo 'Cassandra initialized successfully'
-      "
-
-volumes:
-  cassandra_data: 
+networks:
+  laravel_cassandra_driver_net:
+    driver: bridge
