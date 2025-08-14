@@ -8,14 +8,24 @@
          beStrictAboutTestsThatDoNotTestAnything="false"
          failOnRisky="true"
          failOnWarning="true">
+    <coverage>
+        <report>
+        <clover outputFile="phpunit-report/coverage.xml"/>
+        <html outputDirectory="phpunit-report/html" lowUpperBound="35" highLowerBound="70"/>
+        <text outputFile="php://stdout" showUncoveredFiles="false"/>
+        </report>
+    </coverage>
     <testsuites>
-        <testsuite name="Unit">
-            <directory suffix="Test.php">./tests/Unit</directory>
+        <testsuite name="unit">
+            <directory suffix="Test.php">test/Unit</directory>
         </testsuite>
-        <testsuite name="Feature">
-            <directory suffix="Test.php">./tests/Feature</directory>
+        <testsuite name="integration">
+            <directory suffix="Test.php">test/Integration</directory>
         </testsuite>
     </testsuites>
+    <logging>
+        <junit outputFile="phpunit-report/logfile.xml"/>
+    </logging>
     <source>
         <include>
             <directory suffix=".php">./src</directory>
