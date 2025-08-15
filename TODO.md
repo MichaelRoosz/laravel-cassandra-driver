@@ -1,4 +1,6 @@
 
+- acii !== varchar
+
 - Improve keyspace handling
 
 - Test warnings
