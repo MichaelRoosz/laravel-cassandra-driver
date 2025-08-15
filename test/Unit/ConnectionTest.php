@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace LaravelCassandraDriver\Tests\Unit;
+namespace LaravelCassandraDriver\Test\Unit;
 
 use LaravelCassandraDriver\Tests\TestCase;
 use LaravelCassandraDriver\Connection;

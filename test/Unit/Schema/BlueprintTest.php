@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace LaravelCassandraDriver\Tests\Unit\Schema;
+namespace LaravelCassandraDriver\Test\Unit\Schema;
 
 use LaravelCassandraDriver\Tests\TestCase;
 use LaravelCassandraDriver\Schema\Blueprint;

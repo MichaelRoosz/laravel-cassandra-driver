@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace LaravelCassandraDriver\Tests;
+namespace LaravelCassandraDriver\Test;
 
 use Orchestra\Testbench\TestCase as BaseTestCase;
 use LaravelCassandraDriver\CassandraServiceProvider;
