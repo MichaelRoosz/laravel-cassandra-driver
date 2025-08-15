@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace LaravelCassandraDriver\Tests\Unit\Query;
+namespace LaravelCassandraDriver\Test\Unit\Query;
 
 use Exception;
 use LaravelCassandraDriver\Tests\TestCase;
@@ -15,7 +15,6 @@ use InvalidArgumentException;
 use LaravelCassandraDriver\Schema\Blueprint;
 use Ramsey\Uuid\Uuid;
 use RuntimeException;
-use Cassandra\Type\Date as CassandraDate;
 
 class BuilderTest extends TestCase {
     protected string $testTable;

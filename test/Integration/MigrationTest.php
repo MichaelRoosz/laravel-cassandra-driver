@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace LaravelCassandraDriver\Tests\Feature;
+namespace LaravelCassandraDriver\Test\Integration;
 
 use LaravelCassandraDriver\Tests\TestCase;
 use LaravelCassandraDriver\CassandraMigrationRepository;
