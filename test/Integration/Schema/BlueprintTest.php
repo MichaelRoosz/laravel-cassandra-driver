@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace LaravelCassandraDriver\Test\Unit\Schema;
+namespace LaravelCassandraDriver\Test\Integration\Schema;
 
-use LaravelCassandraDriver\Tests\TestCase;
+use LaravelCassandraDriver\Test\TestCase;
 use LaravelCassandraDriver\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 use RuntimeException;

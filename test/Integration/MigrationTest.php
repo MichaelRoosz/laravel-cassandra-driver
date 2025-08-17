@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace LaravelCassandraDriver\Test\Integration;
 
-use LaravelCassandraDriver\Tests\TestCase;
+use LaravelCassandraDriver\Test\TestCase;
 use LaravelCassandraDriver\CassandraMigrationRepository;
 use LaravelCassandraDriver\Consistency;
 use Illuminate\Support\Facades\DB;
