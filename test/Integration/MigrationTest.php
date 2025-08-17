@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace LaravelCassandraDriver\Test\Integration;
 
+use Illuminate\Database\ConnectionResolverInterface;
 use LaravelCassandraDriver\Test\TestCase;
 use LaravelCassandraDriver\CassandraMigrationRepository;
 use LaravelCassandraDriver\Consistency;
@@ -11,6 +12,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 use LaravelCassandraDriver\Schema\Blueprint;
 use LaravelCassandraDriver\Schema\Builder as SchemaBuilder;
+use RuntimeException;
 
 class MigrationTest extends TestCase {
     protected CassandraMigrationRepository $repository;
@@ -18,8 +20,14 @@ class MigrationTest extends TestCase {
     protected function setUp(): void {
         parent::setUp();
 
+        $resolver = $this->app['db']; /** @phpstan-ignore offsetAccess.notFound */
+
+        if (!$resolver instanceof ConnectionResolverInterface) {
+            throw new RuntimeException('Connection is not a ConnectionResolverInterface');
+        }
+
         $this->repository = new CassandraMigrationRepository(
-            $this->app['db'], /** @phpstan-ignore offsetAccess.notFound */
+            $resolver,
             'migrations'
         );
     }
