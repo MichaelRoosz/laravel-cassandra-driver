@@ -245,9 +245,9 @@ Place in `tests/Unit/` directory. Extend `TestCase` class:
 
 ```php
 <?php
-namespace LaravelCassandraDriver\Tests\Unit;
+namespace LaravelCassandraDriver\Test\Unit;
 
-use LaravelCassandraDriver\Tests\TestCase;
+use LaravelCassandraDriver\Test\TestCase;
 
 class MyTest extends TestCase
 {
@@ -258,17 +258,17 @@ class MyTest extends TestCase
 }
 ```
 
-### Feature Tests
-Place in `tests/Feature/` directory. These tests use a real Cassandra connection:
+### Intgration Tests
+Place in `tests/Intgration/` directory. These tests use a real Cassandra connection:
 
 ```php
 <?php
-namespace LaravelCassandraDriver\Tests\Feature;
+namespace LaravelCassandraDriver\Test\Intgration;
 
-use LaravelCassandraDriver\Tests\TestCase;
+use LaravelCassandraDriver\Test\TestCase;
 use Illuminate\Support\Facades\Schema;
 
-class MyFeatureTest extends TestCase
+class MyIntgrationTest extends TestCase
 {
     public function testRealDatabaseOperation(): void
     {

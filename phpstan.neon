@@ -2,7 +2,7 @@ parameters:
     level: 9
     paths:
         - src
-        - tests
+        - test
     treatPhpDocTypesAsCertain: false
     #exceptions:
     #    implicitThrows: false

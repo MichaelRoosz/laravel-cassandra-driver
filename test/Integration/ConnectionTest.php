@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace LaravelCassandraDriver\Test\Unit;
+namespace LaravelCassandraDriver\Test\Integration;
 
-use LaravelCassandraDriver\Tests\TestCase;
+use LaravelCassandraDriver\Test\TestCase;
 use LaravelCassandraDriver\Connection;
 use LaravelCassandraDriver\Consistency;
 use Illuminate\Support\Facades\DB;

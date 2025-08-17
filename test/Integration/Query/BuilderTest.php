@@ -2,10 +2,11 @@
 
 declare(strict_types=1);
 
-namespace LaravelCassandraDriver\Test\Unit\Query;
+namespace LaravelCassandraDriver\Test\Integration\Query;
 
+use DateTimeImmutable;
 use Exception;
-use LaravelCassandraDriver\Tests\TestCase;
+use LaravelCassandraDriver\Test\TestCase;
 use LaravelCassandraDriver\Query\Builder;
 use LaravelCassandraDriver\Consistency;
 use Illuminate\Pagination\LengthAwarePaginator;
@@ -574,6 +575,42 @@ class BuilderTest extends TestCase {
             ->get();
 
         $this->assertGreaterThanOrEqual(2, $recentResults->count());
+    }
+
+    public function testTimestampTypeRoundTrip(): void {
+        $tableName = 'test_timestamp_type_' . uniqid();
+
+        Schema::create($tableName, function (Blueprint $table) {
+            $table->uuid('id')->primary();
+            $table->timestamp('t');
+        });
+
+        $id = Uuid::uuid4()->toString();
+        $savedDate = '2025-01-02T12:10:24Z';
+
+        DB::table($tableName)->insert([
+            'id' => $id,
+            't' => $savedDate,
+        ]);
+
+        $row = DB::table($tableName)->where('id', $id)->first();
+
+        $this->assertIsArray($row);
+        $this->assertArrayHasKey('t', $row);
+        $this->assertIsString($row['t']);
+
+        $this->assertSame(
+            '2025-01-02 12:10:24.000+0000',
+            $row['t']
+        );
+
+        $datetime = new DateTimeImmutable($row['t']);
+        $this->assertSame(
+            '2025-01-02 12:10:24.000+0000',
+            $datetime->format('Y-m-d H:i:s.vO')
+        );
+
+        Schema::dropIfExists($tableName);
     }
 
     public function testUnsupportedPagination(): void {
