@@ -78,6 +78,11 @@ class Connection extends BaseConnection {
         $this->readCdo = null;
 
         $this->setReconnector(function ($connection) use ($config) {
+
+            if (!$connection instanceof Connection) {
+                throw new CassandraException('Connection is not a Cassandra connection');
+            }
+
             $connection->disconnect();
             $connection->cdo = $connection->createNativeConnection($config);
         });

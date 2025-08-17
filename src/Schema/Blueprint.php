@@ -792,9 +792,10 @@ class Blueprint extends BaseBlueprint {
      *
      * @param  string|array<mixed>  $columns
      * @param  string|null  $name
+     * @param  string|null  $operatorClass
      * @return \Illuminate\Database\Schema\IndexDefinition
      */
-    public function spatialIndex($columns, $name = null) {
+    public function spatialIndex($columns, $name = null, $operatorClass = null) {
         throw new RuntimeException('This database driver does not support spatial indexes.');
     }
 

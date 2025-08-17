@@ -26,7 +26,6 @@ class Builder extends BaseBuilder {
         $this->connection = $connection;
         $this->grammar = $connection->getSchemaGrammar();
 
-        /** @phpstan-ignore-next-line */
         $this->blueprintResolver(function (
             BaseConnection $connection,
             string $table,
