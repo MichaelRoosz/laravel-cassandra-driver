@@ -478,15 +478,6 @@ class Connection extends BaseConnection {
 
             } while ($pagingState && $currentResult->hasMorePages());
 
-            $metadata = $currentResult->getMetadata();
-            foreach ($metadata->columns ?? [] as $column) {
-                if ($column->type->type === CassandraType::DATE) {
-                    foreach ($rows as $index => $row) {
-                        $rows[$index][$column->name] = new CassandraDate($row[$column->name])->toString();
-                    }
-                }
-            }
-
             return $rows;
         });
 
