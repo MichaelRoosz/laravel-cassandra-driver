@@ -8,7 +8,7 @@ use Illuminate\Database\Query\Grammars\Grammar as BaseGrammar;
 use Illuminate\Database\Query\Builder as BaseBuilder;
 use Illuminate\Support\Collection;
 use InvalidArgumentException;
-use RuntimeException;
+use LaravelCassandraDriver\LaravelCassandraException;
 
 class Grammar extends BaseGrammar {
     /**
@@ -324,7 +324,7 @@ class Grammar extends BaseGrammar {
      * @return string
      */
     protected function whereBetween(BaseBuilder $query, $where) {
-        throw new RuntimeException('whereBetween is not supported by Cassandra');
+        throw new LaravelCassandraException('whereBetween is not supported by Cassandra');
     }
 
     /**
@@ -335,7 +335,7 @@ class Grammar extends BaseGrammar {
      * @return string
      */
     protected function whereBetweenColumns(BaseBuilder $query, $where) {
-        throw new RuntimeException('whereBetweenColumns is not supported by Cassandra');
+        throw new LaravelCassandraException('whereBetweenColumns is not supported by Cassandra');
     }
 
     /**
@@ -374,7 +374,7 @@ class Grammar extends BaseGrammar {
      * @return string
      */
     protected function whereLike(BaseBuilder $query, $where) {
-        throw new RuntimeException('whereLike is not supported by Cassandra');
+        throw new LaravelCassandraException('whereLike is not supported by Cassandra');
     }
 
     /**
@@ -385,7 +385,7 @@ class Grammar extends BaseGrammar {
      * @return string
      */
     protected function whereNotIn(BaseBuilder $query, $where) {
-        throw new RuntimeException('whereNotIn is not supported by Cassandra');
+        throw new LaravelCassandraException('whereNotIn is not supported by Cassandra');
     }
 
     /**
@@ -398,7 +398,7 @@ class Grammar extends BaseGrammar {
      * @return string
      */
     protected function whereNotInRaw(BaseBuilder $query, $where) {
-        throw new RuntimeException('whereNotInRaw is not supported by Cassandra');
+        throw new LaravelCassandraException('whereNotInRaw is not supported by Cassandra');
     }
 
     /**
@@ -409,7 +409,7 @@ class Grammar extends BaseGrammar {
      * @return string
      */
     protected function whereNotNull(BaseBuilder $query, $where) {
-        throw new RuntimeException('whereNotNull is not supported by Cassandra');
+        throw new LaravelCassandraException('whereNotNull is not supported by Cassandra');
     }
 
     /**
@@ -420,6 +420,6 @@ class Grammar extends BaseGrammar {
      * @return string
      */
     protected function whereNull(BaseBuilder $query, $where) {
-        throw new RuntimeException('whereNull is not supported by Cassandra');
+        throw new LaravelCassandraException('whereNull is not supported by Cassandra');
     }
 }

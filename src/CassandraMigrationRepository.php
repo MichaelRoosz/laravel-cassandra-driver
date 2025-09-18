@@ -9,7 +9,6 @@ use Illuminate\Database\ConnectionResolverInterface as Resolver;
 use Illuminate\Support\Facades\DB;
 use LaravelCassandraDriver\Query\Builder as QueryBuilder;
 use LaravelCassandraDriver\Schema\Builder as SchemaBuilder;
-use RuntimeException;
 
 class CassandraMigrationRepository implements MigrationRepositoryInterface {
     /**
@@ -49,12 +48,12 @@ class CassandraMigrationRepository implements MigrationRepositoryInterface {
      * 
      * @return void
      *
-     * @throws RuntimeException
+     * @throws \LaravelCassandraDriver\LaravelCassandraException
      */
     public function createRepository() {
         $schema = $this->getConnection()->getSchemaBuilder();
         if (!$schema instanceof SchemaBuilder) {
-            throw new RuntimeException('Schema builder must be an instance of LaravelCassandraDriver\Schema\Builder');
+            throw new LaravelCassandraException('Schema builder must be an instance of LaravelCassandraDriver\Schema\Builder');
         }
 
         $schema->setConsistency(Consistency::ALL);
@@ -75,12 +74,12 @@ class CassandraMigrationRepository implements MigrationRepositoryInterface {
      * @param  object  $migration
      * @return void
      *
-     * @throws RuntimeException
+     * @throws \LaravelCassandraDriver\LaravelCassandraException
      */
     public function delete($migration) {
 
         if (!isset($migration->migration)) {
-            throw new RuntimeException('Migration is missing required migration attribute');
+            throw new LaravelCassandraException('Migration is missing required migration attribute');
         }
 
         $ids = $this->table()
@@ -97,13 +96,13 @@ class CassandraMigrationRepository implements MigrationRepositoryInterface {
      *
      * @return void
      *
-     * @throws RuntimeException
+     * @throws \LaravelCassandraDriver\LaravelCassandraException
      */
     public function deleteRepository() {
 
         $schema = $this->getConnection()->getSchemaBuilder();
         if (!$schema instanceof SchemaBuilder) {
-            throw new RuntimeException('Schema builder must be an instance of LaravelCassandraDriver\Schema\Builder');
+            throw new LaravelCassandraException('Schema builder must be an instance of LaravelCassandraDriver\Schema\Builder');
         }
 
         $schema->setConsistency(Consistency::ALL);
@@ -116,13 +115,13 @@ class CassandraMigrationRepository implements MigrationRepositoryInterface {
      *
      * @return Connection
      *
-     * @throws RuntimeException
+     * @throws \LaravelCassandraDriver\LaravelCassandraException
      */
     public function getConnection() {
         $connection = $this->resolver->connection($this->connection);
 
         if (!$connection instanceof Connection) {
-            throw new RuntimeException('Connection must be an instance of LaravelCassandraDriver\Connection');
+            throw new LaravelCassandraException('Connection must be an instance of LaravelCassandraDriver\Connection');
         }
 
         return $connection;
@@ -142,7 +141,7 @@ class CassandraMigrationRepository implements MigrationRepositoryInterface {
      *
      * @return array<mixed>
      *
-     * @throws RuntimeException
+     * @throws \LaravelCassandraDriver\LaravelCassandraException
      */
     public function getLast() {
 
@@ -154,7 +153,7 @@ class CassandraMigrationRepository implements MigrationRepositoryInterface {
 
             /** @phpstan-ignore-next-line */
             if (!is_array($a) || !is_array($b)) {
-                throw new RuntimeException('Migration must be an array');
+                throw new LaravelCassandraException('Migration must be an array');
             }
 
             return strcmp($b['migration'], $a['migration']);
@@ -168,19 +167,19 @@ class CassandraMigrationRepository implements MigrationRepositoryInterface {
      *
      * @return int
      *
-     * @throws RuntimeException
+     * @throws \LaravelCassandraDriver\LaravelCassandraException
      */
     public function getLastBatchNumber() {
 
         $builder = $this->table();
         if (!$builder instanceof QueryBuilder) {
-            throw new RuntimeException('Query builder must be an instance of LaravelCassandraDriver\Query\Builder');
+            throw new LaravelCassandraException('Query builder must be an instance of LaravelCassandraDriver\Query\Builder');
         }
 
         $lastBatchNumber = $builder->ignoreWarnings()->max('batch') ?? 0;
 
         if (!is_numeric($lastBatchNumber)) {
-            throw new RuntimeException('Batch number must be numeric');
+            throw new LaravelCassandraException('Batch number must be numeric');
         }
 
         return (int) $lastBatchNumber;
@@ -191,7 +190,7 @@ class CassandraMigrationRepository implements MigrationRepositoryInterface {
      *
      * @return array<mixed>
      *
-     * @throws RuntimeException
+     * @throws \LaravelCassandraDriver\LaravelCassandraException
      */
     public function getMigrationBatches() {
 
@@ -201,7 +200,7 @@ class CassandraMigrationRepository implements MigrationRepositoryInterface {
 
             /** @phpstan-ignore-next-line */
             if (!is_array($a) || !is_array($b)) {
-                throw new RuntimeException('Migration must be an array');
+                throw new LaravelCassandraException('Migration must be an array');
             }
 
             if ($a['batch'] === $b['batch']) {
@@ -220,7 +219,7 @@ class CassandraMigrationRepository implements MigrationRepositoryInterface {
      * @param  int  $steps
      * @return array<mixed>
      *
-     * @throws RuntimeException
+     * @throws \LaravelCassandraDriver\LaravelCassandraException
      */
     public function getMigrations($steps) {
 
@@ -231,7 +230,7 @@ class CassandraMigrationRepository implements MigrationRepositoryInterface {
 
             /** @phpstan-ignore-next-line */
             if (!is_array($a) || !is_array($b)) {
-                throw new RuntimeException('Migration must be an array');
+                throw new LaravelCassandraException('Migration must be an array');
             }
 
             if ($a['batch'] === $b['batch']) {
@@ -250,7 +249,7 @@ class CassandraMigrationRepository implements MigrationRepositoryInterface {
      * @param  int  $batch
      * @return array<mixed>
      *
-     * @throws RuntimeException
+     * @throws \LaravelCassandraDriver\LaravelCassandraException
      */
     public function getMigrationsByBatch($batch) {
 
@@ -263,7 +262,7 @@ class CassandraMigrationRepository implements MigrationRepositoryInterface {
 
             /** @phpstan-ignore-next-line */
             if (!is_array($a) || !is_array($b)) {
-                throw new RuntimeException('Migration must be an array');
+                throw new LaravelCassandraException('Migration must be an array');
             }
 
             return strcmp($b['migration'], $a['migration']);
@@ -277,7 +276,7 @@ class CassandraMigrationRepository implements MigrationRepositoryInterface {
      *
      * @return int
      *
-     * @throws RuntimeException
+     * @throws \LaravelCassandraDriver\LaravelCassandraException
      */
     public function getNextBatchNumber() {
         return $this->getLastBatchNumber() + 1;
@@ -288,7 +287,7 @@ class CassandraMigrationRepository implements MigrationRepositoryInterface {
      *
      * @return array<mixed>
      *
-     * @throws RuntimeException
+     * @throws \LaravelCassandraDriver\LaravelCassandraException
      */
     public function getRan() {
 
@@ -298,7 +297,7 @@ class CassandraMigrationRepository implements MigrationRepositoryInterface {
 
             /** @phpstan-ignore-next-line */
             if (!is_array($a) || !is_array($b)) {
-                throw new RuntimeException('Migration must be an array');
+                throw new LaravelCassandraException('Migration must be an array');
             }
 
             if ($a['batch'] === $b['batch']) {
@@ -318,7 +317,7 @@ class CassandraMigrationRepository implements MigrationRepositoryInterface {
      * @param  int  $batch
      * @return void
      *
-     * @throws RuntimeException
+     * @throws \LaravelCassandraDriver\LaravelCassandraException
      */
     public function log($file, $batch) {
 
@@ -336,12 +335,12 @@ class CassandraMigrationRepository implements MigrationRepositoryInterface {
      *
      * @return bool
      *
-     * @throws RuntimeException
+     * @throws \LaravelCassandraDriver\LaravelCassandraException
      */
     public function repositoryExists() {
         $schema = $this->getConnection()->getSchemaBuilder();
         if (!$schema instanceof SchemaBuilder) {
-            throw new RuntimeException('Schema builder must be an instance of LaravelCassandraDriver\Schema\Builder');
+            throw new LaravelCassandraException('Schema builder must be an instance of LaravelCassandraDriver\Schema\Builder');
         }
 
         $schema->setConsistency(Consistency::ALL);
@@ -364,7 +363,7 @@ class CassandraMigrationRepository implements MigrationRepositoryInterface {
      *
      * @return \Illuminate\Database\Query\Builder
      *
-     * @throws RuntimeException
+     * @throws \LaravelCassandraDriver\LaravelCassandraException
      */
     protected function table() {
         $builder = $this->getConnection()
@@ -373,7 +372,7 @@ class CassandraMigrationRepository implements MigrationRepositoryInterface {
         ;
 
         if (!$builder instanceof QueryBuilder) {
-            throw new RuntimeException('Query builder must be an instance of LaravelCassandraDriver\Query\Builder');
+            throw new LaravelCassandraException('Query builder must be an instance of LaravelCassandraDriver\Query\Builder');
         }
 
         $builder->setConsistency(Consistency::ALL);

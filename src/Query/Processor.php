@@ -6,8 +6,7 @@ namespace LaravelCassandraDriver\Query;
 
 use Illuminate\Database\Query\Processors\Processor as BaseProcessor;
 use Illuminate\Database\Query\Builder;
-
-use Cassandra\Exception as CassandraException;
+use LaravelCassandraDriver\LaravelCassandraException;
 
 class Processor extends BaseProcessor {
     /**
@@ -20,6 +19,6 @@ class Processor extends BaseProcessor {
      * @return int
      */
     public function processInsertGetId(Builder $query, $sql, $values, $sequence = null) {
-        throw new CassandraException('"Insert get ID" is not supported by the database.');
+        throw new LaravelCassandraException('"Insert get ID" is not supported by the database.');
     }
 }
