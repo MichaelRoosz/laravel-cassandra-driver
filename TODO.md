@@ -1,11 +1,13 @@
-
-- acii !== varchar
-
+## ToDo
 - Improve keyspace handling
-
 - Test warnings
 - Frozen columns
-- https://cassandra.apache.org/doc/5.0/cassandra/developing/cql/index.html
+- check against https://cassandra.apache.org/doc/5.0/cassandra/developing/cql/index.html
+- streamline exceptions
+- check if vector is supported
+- check if complex types are supported
+
+######################
 
 
 Data Definition (DDL)

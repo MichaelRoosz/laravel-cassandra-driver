@@ -7,7 +7,7 @@ namespace LaravelCassandraDriver\Schema;
 use Illuminate\Database\Schema\Blueprint as BaseBlueprint;
 use Illuminate\Database\Connection as BaseConnection;
 use Illuminate\Database\Schema\Grammars\Grammar as BaseGrammar;
-use RuntimeException;
+use LaravelCassandraDriver\LaravelCassandraException;
 
 class Blueprint extends BaseBlueprint {
     /**
@@ -44,7 +44,7 @@ class Blueprint extends BaseBlueprint {
      * @return \LaravelCassandraDriver\Schema\ColumnDefinition
      */
     public function bigIncrements($column) {
-        throw new RuntimeException('This database driver does not support auto-increment columns.');
+        throw new LaravelCassandraException('This database driver does not support auto-increment columns.');
     }
 
     /**
@@ -133,7 +133,7 @@ class Blueprint extends BaseBlueprint {
      * @return void
      */
     public function charset($charset) {
-        throw new RuntimeException('This database driver does not support setting the charset.');
+        throw new LaravelCassandraException('This database driver does not support setting the charset.');
     }
 
     /**
@@ -153,7 +153,7 @@ class Blueprint extends BaseBlueprint {
         }
 
         if (!in_array($orderBy, ['ASC', 'DESC'])) {
-            throw new RuntimeException('The order by clause must be either "ASC" or "DESC".');
+            throw new LaravelCassandraException('The order by clause must be either "ASC" or "DESC".');
         }
 
         /** @var \Illuminate\Database\Schema\IndexDefinition $index */
@@ -169,7 +169,7 @@ class Blueprint extends BaseBlueprint {
      * @return void
      */
     public function collation($collation) {
-        throw new RuntimeException('This database driver does not support setting the collation.');
+        throw new LaravelCassandraException('This database driver does not support setting the collation.');
     }
 
     /**
@@ -179,7 +179,7 @@ class Blueprint extends BaseBlueprint {
      * @return \Illuminate\Support\Fluent<string,mixed>
      */
     public function comment($comment) {
-        throw new RuntimeException('This database driver does not support comments.');
+        throw new LaravelCassandraException('This database driver does not support comments.');
     }
 
     /**
@@ -190,7 +190,7 @@ class Blueprint extends BaseBlueprint {
      * @return \LaravelCassandraDriver\Schema\ColumnDefinition
      */
     public function computed($column, $expression) {
-        throw new RuntimeException('This database driver does not support computed columns.');
+        throw new LaravelCassandraException('This database driver does not support computed columns.');
     }
 
     /**
@@ -264,7 +264,7 @@ class Blueprint extends BaseBlueprint {
      * @return \Illuminate\Support\Fluent<string,mixed>
      */
     public function dropClustering($index) {
-        throw new RuntimeException('This database driver does not support dropping clustering indexes.');
+        throw new LaravelCassandraException('This database driver does not support dropping clustering indexes.');
     }
 
     /**
@@ -274,7 +274,7 @@ class Blueprint extends BaseBlueprint {
      * @return \Illuminate\Support\Fluent<string,mixed>
      */
     public function dropConstrainedForeignId($column) {
-        throw new RuntimeException('This database driver does not support foreign keys.');
+        throw new LaravelCassandraException('This database driver does not support foreign keys.');
     }
 
     /**
@@ -285,7 +285,7 @@ class Blueprint extends BaseBlueprint {
      * @return \Illuminate\Support\Fluent<string,mixed>
      */
     public function dropConstrainedForeignIdFor($model, $column = null) {
-        throw new RuntimeException('This database driver does not support foreign keys.');
+        throw new LaravelCassandraException('This database driver does not support foreign keys.');
     }
 
     /**
@@ -295,7 +295,7 @@ class Blueprint extends BaseBlueprint {
      * @return \Illuminate\Support\Fluent<string,mixed>
      */
     public function dropForeign($index) {
-        throw new RuntimeException('This database driver does not support foreign keys.');
+        throw new LaravelCassandraException('This database driver does not support foreign keys.');
     }
 
     /**
@@ -306,7 +306,7 @@ class Blueprint extends BaseBlueprint {
      * @return \Illuminate\Support\Fluent<string,mixed>
      */
     public function dropForeignIdFor($model, $column = null) {
-        throw new RuntimeException('This database driver does not support foreign keys.');
+        throw new LaravelCassandraException('This database driver does not support foreign keys.');
     }
 
     /**
@@ -316,7 +316,7 @@ class Blueprint extends BaseBlueprint {
      * @return \Illuminate\Support\Fluent<string,mixed>
      */
     public function dropFullText($index) {
-        throw new RuntimeException('This database driver does not support fulltext indexes.');
+        throw new LaravelCassandraException('This database driver does not support fulltext indexes.');
     }
 
     /**
@@ -326,7 +326,7 @@ class Blueprint extends BaseBlueprint {
      * @return \Illuminate\Support\Fluent<string,mixed>
      */
     public function dropPartition($index) {
-        throw new RuntimeException('This database driver does not support dropping partition indexes.');
+        throw new LaravelCassandraException('This database driver does not support dropping partition indexes.');
     }
 
     /**
@@ -336,7 +336,7 @@ class Blueprint extends BaseBlueprint {
      * @return \Illuminate\Support\Fluent<string,mixed>
      */
     public function dropPrimary($index = null) {
-        throw new RuntimeException('This database driver does not support dropping a primary index.');
+        throw new LaravelCassandraException('This database driver does not support dropping a primary index.');
     }
 
     /**
@@ -346,7 +346,7 @@ class Blueprint extends BaseBlueprint {
      * @return \Illuminate\Support\Fluent<string,mixed>
      */
     public function dropSpatialIndex($index) {
-        throw new RuntimeException('This database driver does not support spatial indexes.');
+        throw new LaravelCassandraException('This database driver does not support spatial indexes.');
     }
 
     /**
@@ -356,7 +356,7 @@ class Blueprint extends BaseBlueprint {
      * @return \Illuminate\Support\Fluent<string,mixed>
      */
     public function dropUnique($index) {
-        throw new RuntimeException('This database driver does not support unique indexes.');
+        throw new LaravelCassandraException('This database driver does not support unique indexes.');
     }
 
     /**
@@ -376,7 +376,7 @@ class Blueprint extends BaseBlueprint {
      * @return void
      */
     public function engine($engine) {
-        throw new RuntimeException('This database driver does not support setting the storage engine.');
+        throw new LaravelCassandraException('This database driver does not support setting the storage engine.');
     }
 
     /**
@@ -387,7 +387,7 @@ class Blueprint extends BaseBlueprint {
      * @return \LaravelCassandraDriver\Schema\ColumnDefinition
      */
     public function enum($column, array $allowed) {
-        throw new RuntimeException('This database driver does not support the enum columns.');
+        throw new LaravelCassandraException('This database driver does not support the enum columns.');
     }
 
     /**
@@ -408,7 +408,7 @@ class Blueprint extends BaseBlueprint {
      * @return \Illuminate\Database\Schema\ForeignKeyDefinition
      */
     public function foreign($columns, $name = null) {
-        throw new RuntimeException('This database driver does not support foreign keys.');
+        throw new LaravelCassandraException('This database driver does not support foreign keys.');
     }
 
     /**
@@ -418,7 +418,7 @@ class Blueprint extends BaseBlueprint {
      * @return \Illuminate\Database\Schema\ForeignIdColumnDefinition
      */
     public function foreignId($column) {
-        throw new RuntimeException('This database driver does not support foreign ids.');
+        throw new LaravelCassandraException('This database driver does not support foreign ids.');
     }
 
     /**
@@ -429,7 +429,7 @@ class Blueprint extends BaseBlueprint {
      * @return \Illuminate\Database\Schema\ForeignIdColumnDefinition
      */
     public function foreignIdFor($model, $column = null) {
-        throw new RuntimeException('This database driver does not support foreign ids.');
+        throw new LaravelCassandraException('This database driver does not support foreign ids.');
     }
 
     /**
@@ -440,7 +440,7 @@ class Blueprint extends BaseBlueprint {
      * @return \Illuminate\Database\Schema\ForeignIdColumnDefinition
      */
     public function foreignUlid($column, $length = 26) {
-        throw new RuntimeException('This database driver does not support foreign keys.');
+        throw new LaravelCassandraException('This database driver does not support foreign keys.');
     }
 
     /**
@@ -450,7 +450,7 @@ class Blueprint extends BaseBlueprint {
      * @return \Illuminate\Database\Schema\ForeignIdColumnDefinition
      */
     public function foreignUuid($column) {
-        throw new RuntimeException('This database driver does not support foreign keys.');
+        throw new LaravelCassandraException('This database driver does not support foreign keys.');
     }
 
     /**
@@ -471,7 +471,7 @@ class Blueprint extends BaseBlueprint {
      * @return \Illuminate\Database\Schema\IndexDefinition
      */
     public function fullText($columns, $name = null, $algorithm = null) {
-        throw new RuntimeException('This database driver does not support fulltext indexes.');
+        throw new LaravelCassandraException('This database driver does not support fulltext indexes.');
     }
 
     /**
@@ -483,7 +483,7 @@ class Blueprint extends BaseBlueprint {
      * @return \LaravelCassandraDriver\Schema\ColumnDefinition
      */
     public function geography($column, $subtype = null, $srid = 4326) {
-        throw new RuntimeException('This database driver does not support geography columns.');
+        throw new LaravelCassandraException('This database driver does not support geography columns.');
     }
 
     /**
@@ -495,7 +495,7 @@ class Blueprint extends BaseBlueprint {
      * @return \LaravelCassandraDriver\Schema\ColumnDefinition
      */
     public function geometry($column, $subtype = null, $srid = 0) {
-        throw new RuntimeException('This database driver does not support geometry columns.');
+        throw new LaravelCassandraException('This database driver does not support geometry columns.');
     }
 
     /**
@@ -505,7 +505,7 @@ class Blueprint extends BaseBlueprint {
      * @return \LaravelCassandraDriver\Schema\ColumnDefinition
      */
     public function id($column = 'id') {
-        throw new RuntimeException('This database driver does not support auto-increment columns.');
+        throw new LaravelCassandraException('This database driver does not support auto-increment columns.');
     }
     /**
      * Create a new auto-incrementing integer (4-byte) column on the table.
@@ -514,7 +514,7 @@ class Blueprint extends BaseBlueprint {
      * @return \LaravelCassandraDriver\Schema\ColumnDefinition
      */
     public function increments($column) {
-        throw new RuntimeException('This database driver does not support auto-increment columns.');
+        throw new LaravelCassandraException('This database driver does not support auto-increment columns.');
     }
 
     /**
@@ -533,7 +533,7 @@ class Blueprint extends BaseBlueprint {
      * @return void
      */
     public function innoDb() {
-        throw new RuntimeException('This database driver does not support setting the storage engine.');
+        throw new LaravelCassandraException('This database driver does not support setting the storage engine.');
     }
 
     /**
@@ -565,7 +565,7 @@ class Blueprint extends BaseBlueprint {
      * @return \LaravelCassandraDriver\Schema\ColumnDefinition
      */
     public function integerIncrements($column) {
-        throw new RuntimeException('This database driver does not support auto-increment columns.');
+        throw new LaravelCassandraException('This database driver does not support auto-increment columns.');
     }
 
     /**
@@ -585,7 +585,7 @@ class Blueprint extends BaseBlueprint {
      * @return \LaravelCassandraDriver\Schema\ColumnDefinition
      */
     public function json($column) {
-        throw new RuntimeException('This database driver does not support json columns.');
+        throw new LaravelCassandraException('This database driver does not support json columns.');
     }
 
     /**
@@ -595,7 +595,7 @@ class Blueprint extends BaseBlueprint {
      * @return \LaravelCassandraDriver\Schema\ColumnDefinition
      */
     public function jsonb($column) {
-        throw new RuntimeException('This database driver does not support jsonb columns.');
+        throw new LaravelCassandraException('This database driver does not support jsonb columns.');
     }
 
     /**
@@ -659,7 +659,7 @@ class Blueprint extends BaseBlueprint {
      * @return \LaravelCassandraDriver\Schema\ColumnDefinition
      */
     public function mediumIncrements($column) {
-        throw new RuntimeException('This database driver does not support auto-increment columns.');
+        throw new LaravelCassandraException('This database driver does not support auto-increment columns.');
     }
 
     /**
@@ -671,7 +671,7 @@ class Blueprint extends BaseBlueprint {
      * @return \LaravelCassandraDriver\Schema\ColumnDefinition
      */
     public function mediumInteger($column, $autoIncrement = false, $unsigned = false) {
-        throw new RuntimeException('This database driver does not support medium integer (3-byte) columns.');
+        throw new LaravelCassandraException('This database driver does not support medium integer (3-byte) columns.');
     }
 
     /**
@@ -723,7 +723,7 @@ class Blueprint extends BaseBlueprint {
      * @return \LaravelCassandraDriver\Schema\ColumnDefinition
      */
     public function rename($to) {
-        throw new RuntimeException('This database driver does not support renaming tables.');
+        throw new LaravelCassandraException('This database driver does not support renaming tables.');
     }
 
     /**
@@ -734,7 +734,7 @@ class Blueprint extends BaseBlueprint {
      * @return \Illuminate\Database\Schema\IndexDefinition
      */
     public function renameIndex($from, $to) {
-        throw new RuntimeException('This database driver does not renaming indexes.');
+        throw new LaravelCassandraException('This database driver does not renaming indexes.');
     }
 
     /**
@@ -745,7 +745,7 @@ class Blueprint extends BaseBlueprint {
      * @return \LaravelCassandraDriver\Schema\ColumnDefinition
      */
     public function set($column, array $allowed) {
-        throw new RuntimeException('This database driver does not support set columns. You can use setCollection instead.');
+        throw new LaravelCassandraException('This database driver does not support set columns. You can use setCollection instead.');
     }
 
     /**
@@ -766,7 +766,7 @@ class Blueprint extends BaseBlueprint {
      * @return \LaravelCassandraDriver\Schema\ColumnDefinition
      */
     public function smallIncrements($column) {
-        throw new RuntimeException('This database driver does not support auto-increment columns.');
+        throw new LaravelCassandraException('This database driver does not support auto-increment columns.');
     }
 
     /**
@@ -799,7 +799,7 @@ class Blueprint extends BaseBlueprint {
      * @return \Illuminate\Database\Schema\IndexDefinition
      */
     public function spatialIndex($columns, $name = null) {
-        throw new RuntimeException('This database driver does not support spatial indexes.');
+        throw new LaravelCassandraException('This database driver does not support spatial indexes.');
     }
 
     /**
@@ -821,7 +821,7 @@ class Blueprint extends BaseBlueprint {
      * @return void
      */
     public function temporary() {
-        throw new RuntimeException('This database driver does not support temporary tables.');
+        throw new LaravelCassandraException('This database driver does not support temporary tables.');
     }
 
     /**
@@ -894,7 +894,7 @@ class Blueprint extends BaseBlueprint {
      * @return \LaravelCassandraDriver\Schema\ColumnDefinition
      */
     public function tinyIncrements($column) {
-        throw new RuntimeException('This database driver does not support auto-increment columns.');
+        throw new LaravelCassandraException('This database driver does not support auto-increment columns.');
     }
 
     /**
@@ -962,7 +962,7 @@ class Blueprint extends BaseBlueprint {
      * @return \Illuminate\Database\Schema\IndexDefinition
      */
     public function unique($columns, $name = null, $algorithm = null) {
-        throw new RuntimeException('This database driver does not support unique indexes.');
+        throw new LaravelCassandraException('This database driver does not support unique indexes.');
     }
 
     /**
@@ -973,7 +973,7 @@ class Blueprint extends BaseBlueprint {
      * @return \LaravelCassandraDriver\Schema\ColumnDefinition
      */
     public function unsignedBigInteger($column, $autoIncrement = false) {
-        throw new RuntimeException('This database driver does not support auto-increment columns.');
+        throw new LaravelCassandraException('This database driver does not support auto-increment columns.');
     }
 
     /**
@@ -984,7 +984,7 @@ class Blueprint extends BaseBlueprint {
      * @return \LaravelCassandraDriver\Schema\ColumnDefinition
      */
     public function unsignedInteger($column, $autoIncrement = false) {
-        throw new RuntimeException('This database driver does not support unsigned integer columns.');
+        throw new LaravelCassandraException('This database driver does not support unsigned integer columns.');
     }
 
     /**
@@ -995,7 +995,7 @@ class Blueprint extends BaseBlueprint {
      * @return \LaravelCassandraDriver\Schema\ColumnDefinition
      */
     public function unsignedMediumInteger($column, $autoIncrement = false) {
-        throw new RuntimeException('This database driver does not support auto-increment columns.');
+        throw new LaravelCassandraException('This database driver does not support auto-increment columns.');
     }
 
     /**
@@ -1006,7 +1006,7 @@ class Blueprint extends BaseBlueprint {
      * @return \LaravelCassandraDriver\Schema\ColumnDefinition
      */
     public function unsignedSmallInteger($column, $autoIncrement = false) {
-        throw new RuntimeException('This database driver does not support auto-increment columns.');
+        throw new LaravelCassandraException('This database driver does not support auto-increment columns.');
     }
 
     /**
@@ -1017,7 +1017,7 @@ class Blueprint extends BaseBlueprint {
      * @return \LaravelCassandraDriver\Schema\ColumnDefinition
      */
     public function unsignedTinyInteger($column, $autoIncrement = false) {
-        throw new RuntimeException('This database driver does not support auto-increment columns.');
+        throw new LaravelCassandraException('This database driver does not support auto-increment columns.');
     }
 
     /**
@@ -1058,7 +1058,7 @@ class Blueprint extends BaseBlueprint {
      * @return \LaravelCassandraDriver\Schema\ColumnDefinition
      */
     public function vector($column, $dimensions = null) {
-        throw new RuntimeException('This database driver does not support vector columns. You can use setCollection instead.');
+        throw new LaravelCassandraException('This database driver does not support vector columns. You can use setCollection instead.');
     }
     /**
      * Create a new year column on the table.

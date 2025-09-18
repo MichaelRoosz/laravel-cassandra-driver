@@ -9,7 +9,6 @@ use Closure;
 use Illuminate\Database\Connection as BaseConnection;
 
 use Cassandra\Connection as CassandraConnection;
-use Cassandra\Exception as CassandraException;
 use Cassandra\Request\Batch;
 use Cassandra\Response\Result as CassandraResult;
 use Cassandra\Connection\StreamNodeConfig;
@@ -18,8 +17,6 @@ use Cassandra\Request\BatchType;
 use Cassandra\Request\Options\ExecuteOptions;
 use Cassandra\Response\Result\RowsResult;
 use Cassandra\Response\ResultKind;
-use Cassandra\Type as CassandraType;
-use Cassandra\Type\Date as CassandraDate;
 use Exception;
 use Illuminate\Database\QueryException;
 use Illuminate\Database\UniqueConstraintViolationException;
@@ -78,6 +75,11 @@ class Connection extends BaseConnection {
         $this->readCdo = null;
 
         $this->setReconnector(function ($connection) use ($config) {
+
+            if (!$connection instanceof Connection) {
+                throw new LaravelCassandraException('Connection is not a Cassandra connection');
+            }
+
             $connection->disconnect();
             $connection->cdo = $connection->createNativeConnection($config);
         });
@@ -121,12 +123,12 @@ class Connection extends BaseConnection {
             // For update or delete statements, we want to get the number of rows affected
             // by the statement and return that back to the developer. We'll first need
             // to execute the statement and then we'll use PDO to fetch the affected.
-            $prepareResult = $cdo->prepareSync($query);
+            $prepareResult = $cdo->prepare($query);
             $this->logResultWarnings($prepareResult, $query);
 
             $preparedBindings = $this->prepareBindings($bindings);
 
-            $result = $cdo->executeSync(
+            $result = $cdo->execute(
                 $prepareResult,
                 $preparedBindings,
                 $this->mapConsistency($this->getConsistency())
@@ -143,7 +145,7 @@ class Connection extends BaseConnection {
         });
 
         if (!is_int($result)) {
-            throw new CassandraException('Result is not integer');
+            throw new LaravelCassandraException('Result is not integer');
         }
 
         return $result;
@@ -160,7 +162,7 @@ class Connection extends BaseConnection {
 
         $queryCount = count($queries);
         if ($queryCount !== count($bindings)) {
-            throw new CassandraException('Queries and bindings count mismatch');
+            throw new LaravelCassandraException('Queries and bindings count mismatch');
         }
 
         $result = $this->runBatch($queries, $bindings, function ($queries, $bindings) {
@@ -179,7 +181,7 @@ class Connection extends BaseConnection {
                 $query = $queries[$i];
                 $queryBindings = $bindings[$i];
 
-                $prepareResult = $cdo->prepareSync($query);
+                $prepareResult = $cdo->prepare($query);
                 $this->logResultWarnings($prepareResult, $query);
 
                 $preparedBindings = $this->prepareBindings($queryBindings);
@@ -189,14 +191,14 @@ class Connection extends BaseConnection {
 
             $this->recordsHaveBeenModified();
 
-            $result = $cdo->batchSync($batchRequest);
+            $result = $cdo->batch($batchRequest);
             $this->logResultWarnings($result, 'batch: ' . implode(';', $queries));
 
             return true;
         });
 
         if (!is_bool($result)) {
-            throw new CassandraException('Result is not boolean');
+            throw new LaravelCassandraException('Result is not boolean');
         }
 
         return $result;
@@ -224,7 +226,7 @@ class Connection extends BaseConnection {
             // First we will create a statement for the query. Then, we will set the fetch
             // mode and prepare the bindings for the query. Once that's done we will be
             // ready to execute the query against the database and return the cursor.
-            $prepareResult = $cdo->prepareSync($query);
+            $prepareResult = $cdo->prepare($query);
             $this->logResultWarnings($prepareResult, $query);
 
             $this->event(new StatementPrepared($this, $prepareResult));
@@ -242,7 +244,7 @@ class Connection extends BaseConnection {
                     pagingState: $pagingState,
                 );
 
-                $result = $cdo->executeSync(
+                $result = $cdo->execute(
                     $prepareResult,
                     $preparedBindings,
                     $this->mapConsistency($this->getConsistency()),
@@ -252,7 +254,7 @@ class Connection extends BaseConnection {
                 $this->logResultWarnings($result, $query);
 
                 if ($result instanceof RowsResult) {
-                    $pagingState = $result->getMetadata()->pagingState;
+                    $pagingState = $result->getRowsMetadata()->pagingState;
                 }
 
                 $results[] = $result->getIterator();
@@ -263,12 +265,12 @@ class Connection extends BaseConnection {
         });
 
         if (!is_iterable($results)) {
-            throw new CassandraException('Results are not iterable');
+            throw new LaravelCassandraException('Results are not iterable');
         }
 
         foreach ($results as $result) {
             if (!is_iterable($result)) {
-                throw new CassandraException('Result is not iterable');
+                throw new LaravelCassandraException('Result is not iterable');
             }
 
             foreach ($result as $record) {
@@ -304,7 +306,7 @@ class Connection extends BaseConnection {
         if ($this->cdo instanceof Closure) {
             return $this->cdo = call_user_func($this->cdo);
         } elseif ($this->cdo === null) {
-            throw new CassandraException('CDO connection is not set');
+            throw new LaravelCassandraException('CDO connection is not set');
         }
 
         return $this->cdo;
@@ -447,7 +449,7 @@ class Connection extends BaseConnection {
             // For select statements, we'll simply execute the query and return an array
             // of the database result set. Each element in the array will be a single
             // row from the database table, and will either be an array or objects.
-            $prepareResult = $cdo->prepareSync($query);
+            $prepareResult = $cdo->prepare($query);
             $this->logResultWarnings($prepareResult, $query);
 
             $this->event(new StatementPrepared($this, $prepareResult));
@@ -463,7 +465,7 @@ class Connection extends BaseConnection {
                     pagingState: $pagingState,
                 );
 
-                $currentResult = $cdo->executeSync(
+                $currentResult = $cdo->execute(
                     $prepareResult,
                     $preparedBindings,
                     $consistency,
@@ -472,7 +474,7 @@ class Connection extends BaseConnection {
 
                 $this->logResultWarnings($currentResult, $query);
 
-                $pagingState = $currentResult->getMetadata()->pagingState;
+                $pagingState = $currentResult->getRowsMetadata()->pagingState;
 
                 $rows = array_merge($rows, $currentResult->fetchAll());
 
@@ -482,7 +484,7 @@ class Connection extends BaseConnection {
         });
 
         if (!is_array($result)) {
-            throw new CassandraException('Result is not an array');
+            throw new LaravelCassandraException('Result is not an array');
         }
 
         return $result;
@@ -568,14 +570,14 @@ class Connection extends BaseConnection {
 
             $cdo = $this->getCdo();
 
-            $prepareResult = $cdo->prepareSync($query);
+            $prepareResult = $cdo->prepare($query);
             $this->logResultWarnings($prepareResult, $query);
 
             $preparedBindings = $this->prepareBindings($bindings);
 
             $this->recordsHaveBeenModified();
 
-            $result = $cdo->executeSync(
+            $result = $cdo->execute(
                 $prepareResult,
                 $preparedBindings,
                 $this->mapConsistency($this->getConsistency()),
@@ -586,7 +588,7 @@ class Connection extends BaseConnection {
         });
 
         if (!is_bool($result)) {
-            throw new CassandraException('Result is not boolean');
+            throw new LaravelCassandraException('Result is not boolean');
         }
 
         return $result;
@@ -606,7 +608,7 @@ class Connection extends BaseConnection {
 
             $cdo = $this->getCdo();
 
-            $result = $cdo->querySync(
+            $result = $cdo->query(
                 $query,
                 [],
                 $this->mapConsistency($this->getConsistency()),
@@ -627,7 +629,7 @@ class Connection extends BaseConnection {
         });
 
         if (!is_bool($result)) {
-            throw new CassandraException('Result is not boolean');
+            throw new LaravelCassandraException('Result is not boolean');
         }
 
         return $result;
@@ -772,7 +774,7 @@ class Connection extends BaseConnection {
         $config['port'] = $config['port'] ?? [];
 
         if (count($hosts) < 1) {
-            throw new CassandraException('DB hostname is not found, please check your DB hostname');
+            throw new LaravelCassandraException('DB hostname is not found, please check your DB hostname');
         }
 
         if ($config['port']) {
@@ -874,7 +876,7 @@ class Connection extends BaseConnection {
         $queryCount = count($queries);
 
         if ($queryCount !== count($bindings)) {
-            throw new CassandraException('Queries and bindings count mismatch');
+            throw new LaravelCassandraException('Queries and bindings count mismatch');
         }
 
         for ($i = 0; $i < $queryCount; $i++) {
@@ -883,7 +885,7 @@ class Connection extends BaseConnection {
             $queryBindings = $bindings[$i];
 
             if (!is_string($query)) {
-                throw new CassandraException('Query is not a string');
+                throw new LaravelCassandraException('Query is not a string');
             }
 
             foreach ($this->beforeExecutingCallbacks as $beforeExecutingCallback) {
@@ -949,7 +951,7 @@ class Connection extends BaseConnection {
             $queryCount = count($queries);
 
             if ($queryCount !== count($bindings)) {
-                throw new CassandraException('Queries and bindings count mismatch');
+                throw new LaravelCassandraException('Queries and bindings count mismatch');
             }
 
             $allQueries = 'batch: ';
@@ -962,11 +964,11 @@ class Connection extends BaseConnection {
                 $queryBindings = $bindings[$i];
 
                 if (!is_string($query)) {
-                    throw new CassandraException('Query is not a string');
+                    throw new LaravelCassandraException('Query is not a string');
                 }
 
                 if (!is_array($queryBindings)) {
-                    throw new CassandraException('Query bindings are not an array');
+                    throw new LaravelCassandraException('Query bindings are not an array');
                 }
 
                 $allQueries .= Str::replaceArray('?', $queryBindings, $query) . '; ';

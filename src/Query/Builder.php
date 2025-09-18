@@ -10,7 +10,7 @@ use Illuminate\Database\Query\Builder as BaseBuilder;
 use Illuminate\Pagination\Paginator;
 use LaravelCassandraDriver\Connection;
 use LaravelCassandraDriver\Consistency;
-use RuntimeException;
+use LaravelCassandraDriver\LaravelCassandraException;
 
 class Builder extends BaseBuilder {
     public bool $allowFiltering = false;
@@ -94,7 +94,7 @@ class Builder extends BaseBuilder {
      */
     public function cursorPaginate($perPage = 15, $columns = ['*'], $cursorName = 'cursor', $cursor = null) {
 
-        throw new RuntimeException('Cursor pagination is not supported by Cassandra');
+        throw new LaravelCassandraException('Cursor pagination is not supported by Cassandra');
     }
 
     public function delete($id = null) {
@@ -178,7 +178,7 @@ class Builder extends BaseBuilder {
      * @return \Illuminate\Contracts\Pagination\Paginator<string,mixed>
      */
     public function simplePaginate($perPage = 15, $columns = ['*'], $pageName = 'page', $page = null) {
-        throw new RuntimeException('Simple pagination is not supported by Cassandra.');
+        throw new LaravelCassandraException('Simple pagination is not supported by Cassandra.');
     }
 
     /**
@@ -225,7 +225,7 @@ class Builder extends BaseBuilder {
     public function whereContains($column, $value, $boolean = 'and', $not = false) {
 
         if ($not) {
-            throw new RuntimeException('whereContains does not support not operator');
+            throw new LaravelCassandraException('whereContains does not support not operator');
         }
 
         $type = 'contains';
@@ -249,7 +249,7 @@ class Builder extends BaseBuilder {
     public function whereContainsKey($column, $value, $boolean = 'and', $not = false) {
 
         if ($not) {
-            throw new RuntimeException('whereContainsKey does not support not operator');
+            throw new LaravelCassandraException('whereContainsKey does not support not operator');
         }
 
         $type = 'containsKey';
@@ -264,7 +264,7 @@ class Builder extends BaseBuilder {
     protected function applyConsistency(): void {
 
         if (!$this->connection instanceof Connection) {
-            throw new RuntimeException('Invalid connection selected.');
+            throw new LaravelCassandraException('Invalid connection selected.');
         }
 
         if ($this->consistency) {
@@ -277,7 +277,7 @@ class Builder extends BaseBuilder {
     protected function applyIgnoreWarnings(): void {
 
         if (!$this->connection instanceof Connection) {
-            throw new RuntimeException('Invalid connection selected.');
+            throw new LaravelCassandraException('Invalid connection selected.');
         }
 
         if ($this->ignoreWarnings) {

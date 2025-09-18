@@ -4,13 +4,12 @@ declare(strict_types=1);
 
 namespace LaravelCassandraDriver\Schema;
 
-use RuntimeException;
-
 use Illuminate\Database\Schema\Grammars\Grammar as BaseGrammar;
 use Illuminate\Support\Fluent;
 use Illuminate\Database\Schema\Blueprint as BaseBlueprint;
 use Illuminate\Database\Schema\ColumnDefinition;
 use Illuminate\Database\Connection as BaseConnection;
+use LaravelCassandraDriver\LaravelCassandraException;
 
 class Grammar extends BaseGrammar {
     /**
@@ -38,7 +37,7 @@ class Grammar extends BaseGrammar {
 
         $column = $command->value('column');
         if (!($column instanceof ColumnDefinition)) {
-            throw new RuntimeException('Column must be a ColumnDefinition object.');
+            throw new LaravelCassandraException('Column must be a ColumnDefinition object.');
         }
 
         return sprintf('alter table %s add %s',
@@ -55,13 +54,13 @@ class Grammar extends BaseGrammar {
      * @param  \Illuminate\Database\Connection  $connection
      * @return array<mixed>|string
      *
-     * @throws \RuntimeException
+     * @throws \LaravelCassandraDriver\LaravelCassandraException
      */
     public function compileChange(BaseBlueprint $blueprint, Fluent $command, BaseConnection $connection) {
 
         $column = $command->value('column');
         if (!($column instanceof ColumnDefinition)) {
-            throw new RuntimeException('Column must be a ColumnDefinition object.');
+            throw new LaravelCassandraException('Column must be a ColumnDefinition object.');
         }
 
         $sql = sprintf('alter table %s alter %s type %s',
@@ -122,7 +121,7 @@ class Grammar extends BaseGrammar {
         ];
 
         if (!is_array($replication)) {
-            throw new RuntimeException('replication config must be an array.');
+            throw new LaravelCassandraException('replication config must be an array.');
         }
 
         $replicationOptions = [];
@@ -130,7 +129,7 @@ class Grammar extends BaseGrammar {
         foreach ($replication as $key => $value) {
 
             if (!is_string($value) && !is_int($value) && !is_float($value)) {
-                throw new RuntimeException('replication config must be an array of strings, integers or floats.');
+                throw new LaravelCassandraException('replication config must be an array of strings, integers or floats.');
             }
 
             $wrappedValue = is_string($value) ? $this->quoteString($value) : $value;
@@ -151,7 +150,7 @@ class Grammar extends BaseGrammar {
      * @return string
      */
     public function compileDisableForeignKeyConstraints() {
-        throw new RuntimeException('This database driver does not support foreign key creation.');
+        throw new LaravelCassandraException('This database driver does not support foreign key creation.');
     }
 
     /**
@@ -176,10 +175,22 @@ class Grammar extends BaseGrammar {
 
         $columnsInfo = $command->value('columns');
         if (!is_array($columnsInfo)) {
-            throw new RuntimeException('Columns must be an array.');
+            throw new LaravelCassandraException('Columns must be an array.');
         }
 
-        $columns = $this->wrapArray($columnsInfo);
+        $validatedColumnsInfo = [];
+        foreach ($columnsInfo as $info) {
+            if (
+                !is_string($info)
+                && !($info instanceof \Illuminate\Contracts\Database\Query\Expression)
+            ) {
+                throw new LaravelCassandraException('Column must be a string or an expression.');
+            }
+
+            $validatedColumnsInfo[] = $info;
+        }
+
+        $columns = $this->wrapArray($validatedColumnsInfo);
 
         return 'alter table ' . $this->wrapTable($blueprint) . ' drop (' . implode(', ', $columns) . ')';
     }
@@ -206,7 +217,7 @@ class Grammar extends BaseGrammar {
 
         $indexInfo = $command->value('index');
         if (!is_string($indexInfo)) {
-            throw new RuntimeException('Index must be a string.');
+            throw new LaravelCassandraException('Index must be a string.');
         }
 
         $index = $this->wrap($blueprint->getTable() . '_' . $indexInfo . '_index');
@@ -246,7 +257,7 @@ class Grammar extends BaseGrammar {
      * @return string
      */
     public function compileEnableForeignKeyConstraints() {
-        throw new RuntimeException('This database driver does not support foreign key creation.');
+        throw new LaravelCassandraException('This database driver does not support foreign key creation.');
     }
 
     /**
@@ -257,7 +268,7 @@ class Grammar extends BaseGrammar {
      * @return string
      */
     public function compileForeign(BaseBlueprint $blueprint, Fluent $command) {
-        throw new RuntimeException('This database driver does not support foreign key creation.');
+        throw new LaravelCassandraException('This database driver does not support foreign key creation.');
     }
 
     /**
@@ -271,12 +282,24 @@ class Grammar extends BaseGrammar {
 
         $indexInfo = $command->value('index');
         if (!is_string($indexInfo)) {
-            throw new RuntimeException('Index must be a string.');
+            throw new LaravelCassandraException('Index must be a string.');
         }
 
         $columnsInfo = $command->value('columns');
         if (!is_array($columnsInfo)) {
-            throw new RuntimeException('Columns must be an array.');
+            throw new LaravelCassandraException('Columns must be an array.');
+        }
+
+        $validatedColumnsInfo = [];
+        foreach ($columnsInfo as $info) {
+            if (
+                !is_string($info)
+                && !($info instanceof \Illuminate\Contracts\Database\Query\Expression)
+            ) {
+                throw new LaravelCassandraException('Column must be a string or an expression.');
+            }
+
+            $validatedColumnsInfo[] = $info;
         }
 
         return sprintf('create index %s on %s (%s)',
@@ -322,7 +345,7 @@ class Grammar extends BaseGrammar {
      * @return string
      */
     public function compilePrimary(BaseBlueprint $blueprint, Fluent $command) {
-        throw new RuntimeException('This database driver does not support primary key creation.');
+        throw new LaravelCassandraException('This database driver does not support primary key creation.');
     }
 
     /**
@@ -337,12 +360,12 @@ class Grammar extends BaseGrammar {
 
         $from = $command->value('from');
         if (!is_string($from)) {
-            throw new RuntimeException('From must be a string.');
+            throw new LaravelCassandraException('From must be a string.');
         }
 
         $to = $command->value('to');
         if (!is_string($to)) {
-            throw new RuntimeException('To must be a string.');
+            throw new LaravelCassandraException('To must be a string.');
         }
 
         return sprintf('alter table %s rename %s to %s',
@@ -430,17 +453,30 @@ class Grammar extends BaseGrammar {
         foreach ($partitionCommands as $command) {
             $columns = $command->value('columns');
             if (!is_array($columns)) {
-                throw new RuntimeException('Partition key columns must be an array.');
+                throw new LaravelCassandraException('Partition key columns must be an array.');
             }
 
             $command->offsetSet('shouldBeSkipped', true);
 
             $partitionKeyColumns = array_merge($partitionKeyColumns, $columns);
         }
-        $partitionKeyCql = $this->columnize($partitionKeyColumns);
+
+        $validatedPartitionKeyColumns = [];
+        foreach ($partitionKeyColumns as $info) {
+            if (
+                !is_string($info)
+                && !($info instanceof \Illuminate\Contracts\Database\Query\Expression)
+            ) {
+                throw new LaravelCassandraException('Column must be a string or an expression.');
+            }
+
+            $validatedPartitionKeyColumns[] = $info;
+        }
+
+        $partitionKeyCql = $this->columnize($validatedPartitionKeyColumns);
 
         if (!$partitionKeyCql) {
-            throw new RuntimeException('Partition key must be defined.');
+            throw new LaravelCassandraException('Partition key must be defined.');
         }
 
         // clustering columns(s)
@@ -449,12 +485,17 @@ class Grammar extends BaseGrammar {
         foreach ($clusteringCommands as $command) {
             $columns = $command->value('columns');
             if (!is_array($columns)) {
-                throw new RuntimeException('Partition key columns must be an array.');
+                throw new LaravelCassandraException('Partition key columns must be an array.');
             }
 
             $command->offsetSet('shouldBeSkipped', true);
 
             foreach ($columns as $column) {
+
+                if (!is_string($column)) {
+                    throw new LaravelCassandraException('Column must be a string.');
+                }
+
                 $clusteringColumns[$column] =  $command->algorithm;
             }
         }
@@ -669,7 +710,7 @@ class Grammar extends BaseGrammar {
 
         $collectionType = $column->value('collectionType');
         if (!is_string($collectionType)) {
-            throw new RuntimeException('collectionType must be a string.');
+            throw new LaravelCassandraException('collectionType must be a string.');
         }
 
         return 'list<' . $collectionType . '>';
@@ -685,12 +726,12 @@ class Grammar extends BaseGrammar {
 
         $collectionType1 = $column->value('collectionType1');
         if (!is_string($collectionType1)) {
-            throw new RuntimeException('collectionType1 must be a string.');
+            throw new LaravelCassandraException('collectionType1 must be a string.');
         }
 
         $collectionType2 = $column->value('collectionType2');
         if (!is_string($collectionType2)) {
-            throw new RuntimeException('collectionType2 must be a string.');
+            throw new LaravelCassandraException('collectionType2 must be a string.');
         }
 
         return 'map<' . $collectionType1 . ', ' . $collectionType2 . '>';
@@ -706,7 +747,7 @@ class Grammar extends BaseGrammar {
 
         $collectionType = $column->value('collectionType');
         if (!is_string($collectionType)) {
-            throw new RuntimeException('collectionType must be a string.');
+            throw new LaravelCassandraException('collectionType must be a string.');
         }
 
         return 'set<' . $collectionType . '>';
@@ -782,17 +823,17 @@ class Grammar extends BaseGrammar {
 
         $tuple1type = $column->value('tuple1type');
         if (!is_string($tuple1type)) {
-            throw new RuntimeException('tuple1type must be a string.');
+            throw new LaravelCassandraException('tuple1type must be a string.');
         }
 
         $tuple2type = $column->value('tuple2type');
         if (!is_string($tuple2type)) {
-            throw new RuntimeException('tuple2type must be a string.');
+            throw new LaravelCassandraException('tuple2type must be a string.');
         }
 
         $tuple3type = $column->value('tuple3type');
         if (!is_string($tuple3type)) {
-            throw new RuntimeException('tuple3type must be a string.');
+            throw new LaravelCassandraException('tuple3type must be a string.');
         }
 
         return 'tuple<' . $tuple1type . ', ' . $tuple2type . ', ' . $tuple3type . '>';

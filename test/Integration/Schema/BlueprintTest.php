@@ -7,7 +7,7 @@ namespace LaravelCassandraDriver\Test\Integration\Schema;
 use LaravelCassandraDriver\Test\TestCase;
 use LaravelCassandraDriver\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
-use RuntimeException;
+use LaravelCassandraDriver\LaravelCassandraException;
 
 class BlueprintTest extends TestCase {
     protected function setUp(): void {
@@ -486,7 +486,7 @@ class BlueprintTest extends TestCase {
         });
 
         Schema::table($tableName, function (Blueprint $table) {
-            $this->expectException(RuntimeException::class);
+            $this->expectException(LaravelCassandraException::class);
             $table->renameIndex('old_index', 'new_index');
         });
 
@@ -568,37 +568,37 @@ class BlueprintTest extends TestCase {
         });
 
         Schema::table($tableName, function (Blueprint $table) {
-            $this->expectException(RuntimeException::class);
+            $this->expectException(LaravelCassandraException::class);
             $table->id();
         });
 
         Schema::table($tableName, function (Blueprint $table) {
-            $this->expectException(RuntimeException::class);
+            $this->expectException(LaravelCassandraException::class);
             $table->increments('auto_id');
         });
 
         Schema::table($tableName, function (Blueprint $table) {
-            $this->expectException(RuntimeException::class);
+            $this->expectException(LaravelCassandraException::class);
             $table->bigIncrements('big_auto_id');
         });
 
         Schema::table($tableName, function (Blueprint $table) {
-            $this->expectException(RuntimeException::class);
+            $this->expectException(LaravelCassandraException::class);
             $table->integerIncrements('int_auto_id');
         });
 
         Schema::table($tableName, function (Blueprint $table) {
-            $this->expectException(RuntimeException::class);
+            $this->expectException(LaravelCassandraException::class);
             $table->smallIncrements('small_auto_id');
         });
 
         Schema::table($tableName, function (Blueprint $table) {
-            $this->expectException(RuntimeException::class);
+            $this->expectException(LaravelCassandraException::class);
             $table->tinyIncrements('tiny_auto_id');
         });
 
         Schema::table($tableName, function (Blueprint $table) {
-            $this->expectException(RuntimeException::class);
+            $this->expectException(LaravelCassandraException::class);
             $table->mediumIncrements('medium_auto_id');
         });
 
@@ -614,32 +614,32 @@ class BlueprintTest extends TestCase {
         });
 
         Schema::table($tableName, function (Blueprint $table) {
-            $this->expectException(RuntimeException::class);
+            $this->expectException(LaravelCassandraException::class);
             $table->enum('status', ['active', 'inactive']);
         });
 
         Schema::table($tableName, function (Blueprint $table) {
-            $this->expectException(RuntimeException::class);
+            $this->expectException(LaravelCassandraException::class);
             $table->json('data');
         });
 
         Schema::table($tableName, function (Blueprint $table) {
-            $this->expectException(RuntimeException::class);
+            $this->expectException(LaravelCassandraException::class);
             $table->jsonb('data');
         });
 
         Schema::table($tableName, function (Blueprint $table) {
-            $this->expectException(RuntimeException::class);
+            $this->expectException(LaravelCassandraException::class);
             $table->geometry('location');
         });
 
         Schema::table($tableName, function (Blueprint $table) {
-            $this->expectException(RuntimeException::class);
+            $this->expectException(LaravelCassandraException::class);
             $table->geography('location');
         });
 
         Schema::table($tableName, function (Blueprint $table) {
-            $this->expectException(RuntimeException::class);
+            $this->expectException(LaravelCassandraException::class);
             $table->ipAddress('ip');
         });
 
@@ -656,17 +656,17 @@ class BlueprintTest extends TestCase {
         });
 
         Schema::table($tableName, function (Blueprint $table) {
-            $this->expectException(RuntimeException::class);
+            $this->expectException(LaravelCassandraException::class);
             $table->foreign('id')->references('id')->on('other_table');
         });
 
         Schema::table($tableName, function (Blueprint $table) {
-            $this->expectException(RuntimeException::class);
+            $this->expectException(LaravelCassandraException::class);
             $table->dropForeign(['id']);
         });
 
         Schema::table($tableName, function (Blueprint $table) {
-            $this->expectException(RuntimeException::class);
+            $this->expectException(LaravelCassandraException::class);
             $table->dropConstrainedForeignId('id');
         });
 
@@ -684,32 +684,32 @@ class BlueprintTest extends TestCase {
         });
 
         Schema::table($tableName, function (Blueprint $table) {
-            $this->expectException(RuntimeException::class);
+            $this->expectException(LaravelCassandraException::class);
             $table->fullText(['content']);
         });
 
         Schema::table($tableName, function (Blueprint $table) {
-            $this->expectException(RuntimeException::class);
+            $this->expectException(LaravelCassandraException::class);
             $table->spatialIndex(['name']);
         });
 
         Schema::table($tableName, function (Blueprint $table) {
-            $this->expectException(RuntimeException::class);
+            $this->expectException(LaravelCassandraException::class);
             $table->unique(['name']);
         });
 
         Schema::table($tableName, function (Blueprint $table) {
-            $this->expectException(RuntimeException::class);
+            $this->expectException(LaravelCassandraException::class);
             $table->dropUnique(['name']);
         });
 
         Schema::table($tableName, function (Blueprint $table) {
-            $this->expectException(RuntimeException::class);
+            $this->expectException(LaravelCassandraException::class);
             $table->dropFullText(['content']);
         });
 
         Schema::table($tableName, function (Blueprint $table) {
-            $this->expectException(RuntimeException::class);
+            $this->expectException(LaravelCassandraException::class);
             $table->dropSpatialIndex(['name']);
         });
 
@@ -726,17 +726,17 @@ class BlueprintTest extends TestCase {
         });
 
         Schema::table($tableName, function (Blueprint $table) {
-            $this->expectException(RuntimeException::class);
+            $this->expectException(LaravelCassandraException::class);
             $table->bigIncrements('auto_id');
         });
 
         Schema::table($tableName, function (Blueprint $table) {
-            $this->expectException(RuntimeException::class);
+            $this->expectException(LaravelCassandraException::class);
             $table->charset('utf8');
         });
 
         Schema::table($tableName, function (Blueprint $table) {
-            $this->expectException(RuntimeException::class);
+            $this->expectException(LaravelCassandraException::class);
             $table->engine('InnoDB');
         });
 
@@ -753,17 +753,17 @@ class BlueprintTest extends TestCase {
         });
 
         Schema::table($tableName, function (Blueprint $table) {
-            $this->expectException(RuntimeException::class);
+            $this->expectException(LaravelCassandraException::class);
             $table->dropPrimary();
         });
 
         Schema::table($tableName, function (Blueprint $table) {
-            $this->expectException(RuntimeException::class);
+            $this->expectException(LaravelCassandraException::class);
             $table->dropPartition(['id']);
         });
 
         Schema::table($tableName, function (Blueprint $table) {
-            $this->expectException(RuntimeException::class);
+            $this->expectException(LaravelCassandraException::class);
             $table->dropClustering(['id']);
         });
 
@@ -780,27 +780,27 @@ class BlueprintTest extends TestCase {
         });
 
         Schema::table($tableName, function (Blueprint $table) {
-            $this->expectException(RuntimeException::class);
+            $this->expectException(LaravelCassandraException::class);
             $table->rename('new_table_name');
         });
 
         Schema::table($tableName, function (Blueprint $table) {
-            $this->expectException(RuntimeException::class);
+            $this->expectException(LaravelCassandraException::class);
             $table->temporary();
         });
 
         Schema::table($tableName, function (Blueprint $table) {
-            $this->expectException(RuntimeException::class);
+            $this->expectException(LaravelCassandraException::class);
             $table->engine('InnoDB');
         });
 
         Schema::table($tableName, function (Blueprint $table) {
-            $this->expectException(RuntimeException::class);
+            $this->expectException(LaravelCassandraException::class);
             $table->charset('utf8');
         });
 
         Schema::table($tableName, function (Blueprint $table) {
-            $this->expectException(RuntimeException::class);
+            $this->expectException(LaravelCassandraException::class);
             $table->collation('utf8_unicode_ci');
         });
 

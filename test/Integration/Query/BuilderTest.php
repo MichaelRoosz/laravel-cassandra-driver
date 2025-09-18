@@ -13,6 +13,7 @@ use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 use InvalidArgumentException;
+use LaravelCassandraDriver\LaravelCassandraException;
 use LaravelCassandraDriver\Schema\Blueprint;
 use Ramsey\Uuid\Uuid;
 use RuntimeException;
@@ -540,7 +541,7 @@ class BuilderTest extends TestCase {
     }
 
     public function testSimplePaginateThrowsException(): void {
-        $this->expectException(RuntimeException::class);
+        $this->expectException(LaravelCassandraException::class);
 
         DB::table($this->testTable)->simplePaginate();
     }
@@ -614,7 +615,7 @@ class BuilderTest extends TestCase {
     }
 
     public function testUnsupportedPagination(): void {
-        $this->expectException(RuntimeException::class);
+        $this->expectException(LaravelCassandraException::class);
 
         DB::table($this->testTable)->cursorPaginate();
     }

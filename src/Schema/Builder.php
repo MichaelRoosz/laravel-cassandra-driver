@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace LaravelCassandraDriver\Schema;
 
 use Closure;
-use RuntimeException;
 
 use Illuminate\Database\Schema\Builder as BaseBuilder;
 use Illuminate\Database\Connection as BaseConnection;
@@ -13,6 +12,7 @@ use Illuminate\Database\Schema\Blueprint as BaseBlueprint;
 use InvalidArgumentException;
 use LaravelCassandraDriver\Connection;
 use LaravelCassandraDriver\Consistency;
+use LaravelCassandraDriver\LaravelCassandraException;
 
 class Builder extends BaseBuilder {
     protected ?Consistency $consistency = null;
@@ -51,7 +51,7 @@ class Builder extends BaseBuilder {
     public function createKeyspace($name, $replication = null) {
 
         if (!$this->grammar instanceof Grammar) {
-            throw new RuntimeException('Invalid grammar selected.');
+            throw new LaravelCassandraException('Invalid grammar selected.');
         }
 
         return $this->connection->unprepared(
@@ -69,7 +69,7 @@ class Builder extends BaseBuilder {
     public function createKeyspaceIfNotExists($name, $replication = null) {
 
         if (!$this->grammar instanceof Grammar) {
-            throw new RuntimeException('Invalid grammar selected.');
+            throw new LaravelCassandraException('Invalid grammar selected.');
         }
 
         return $this->connection->unprepared(
@@ -83,7 +83,7 @@ class Builder extends BaseBuilder {
      * @return bool
      */
     public function disableForeignKeyConstraints() {
-        throw new RuntimeException('This database engine does not support foreign keys.');
+        throw new LaravelCassandraException('This database engine does not support foreign keys.');
     }
 
     /**
@@ -122,7 +122,7 @@ class Builder extends BaseBuilder {
     public function dropKeyspace($name) {
 
         if (!$this->grammar instanceof Grammar) {
-            throw new RuntimeException('Invalid grammar selected.');
+            throw new LaravelCassandraException('Invalid grammar selected.');
         }
 
         return $this->connection->unprepared(
@@ -139,7 +139,7 @@ class Builder extends BaseBuilder {
     public function dropKeyspaceIfExists($name) {
 
         if (!$this->grammar instanceof Grammar) {
-            throw new RuntimeException('Invalid grammar selected.');
+            throw new LaravelCassandraException('Invalid grammar selected.');
         }
 
         return $this->connection->unprepared(
@@ -153,7 +153,7 @@ class Builder extends BaseBuilder {
      * @return bool
      */
     public function enableForeignKeyConstraints() {
-        throw new RuntimeException('This database engine does not support foreign keys.');
+        throw new LaravelCassandraException('This database engine does not support foreign keys.');
     }
 
     /**
@@ -166,17 +166,17 @@ class Builder extends BaseBuilder {
         [$schema, $table] = $this->parseSchemaAndTable($table, withDefaultSchema: true);
 
         if ($schema === null) {
-            throw new RuntimeException('Schema name is required.');
+            throw new LaravelCassandraException('Schema name is required.');
         }
 
         $table = $this->connection->getTablePrefix() . $table;
 
         if (!$this->connection instanceof Connection) {
-            throw new RuntimeException('Invalid connection selected.');
+            throw new LaravelCassandraException('Invalid connection selected.');
         }
 
         if (!$this->grammar instanceof Grammar) {
-            throw new RuntimeException('Invalid grammar selected.');
+            throw new LaravelCassandraException('Invalid grammar selected.');
         }
 
         $results = $this->connection->selectFromWriteConnection(
@@ -214,7 +214,7 @@ class Builder extends BaseBuilder {
      * @return array<mixed>
      */
     public function getForeignKeys($table) {
-        throw new RuntimeException('This database engine does not support foreign keys.');
+        throw new LaravelCassandraException('This database engine does not support foreign keys.');
     }
 
     /**
@@ -227,17 +227,17 @@ class Builder extends BaseBuilder {
         [$schema, $table] = $this->parseSchemaAndTable($table, withDefaultSchema: true);
 
         if ($schema === null) {
-            throw new RuntimeException('Schema name is required.');
+            throw new LaravelCassandraException('Schema name is required.');
         }
 
         $table = $this->connection->getTablePrefix() . $table;
 
         if (!$this->connection instanceof Connection) {
-            throw new RuntimeException('Invalid connection selected.');
+            throw new LaravelCassandraException('Invalid connection selected.');
         }
 
         if (!$this->grammar instanceof Grammar) {
-            throw new RuntimeException('Invalid grammar selected.');
+            throw new LaravelCassandraException('Invalid grammar selected.');
         }
 
         return $this->connection->getPostProcessor()->processIndexes(
@@ -259,16 +259,16 @@ class Builder extends BaseBuilder {
     public function getTables($schema = null) {
 
         if (!$this->connection instanceof Connection) {
-            throw new RuntimeException('Invalid connection selected.');
+            throw new LaravelCassandraException('Invalid connection selected.');
         }
 
         if (!$this->grammar instanceof Grammar) {
-            throw new RuntimeException('Invalid grammar selected.');
+            throw new LaravelCassandraException('Invalid grammar selected.');
         }
 
         $schema ??= $this->getCurrentSchemaName();
         if (!is_string($schema)) {
-            throw new RuntimeException('Invalid schema name.');
+            throw new LaravelCassandraException('Invalid schema name.');
         }
 
         return $this->connection->getPostProcessor()->processTables(
@@ -288,16 +288,16 @@ class Builder extends BaseBuilder {
      */
     public function getViews($schema = null) {
         if (!$this->connection instanceof Connection) {
-            throw new RuntimeException('Invalid connection selected.');
+            throw new LaravelCassandraException('Invalid connection selected.');
         }
 
         if (!$this->grammar instanceof Grammar) {
-            throw new RuntimeException('Invalid grammar selected.');
+            throw new LaravelCassandraException('Invalid grammar selected.');
         }
 
         $schema ??= $this->getCurrentSchemaName();
         if (!is_string($schema)) {
-            throw new RuntimeException('Invalid schema name.');
+            throw new LaravelCassandraException('Invalid schema name.');
         }
 
         return $this->connection->getPostProcessor()->processViews(
@@ -351,7 +351,7 @@ class Builder extends BaseBuilder {
      * @return void
      */
     public function rename($from, $to) {
-        throw new RuntimeException('This database engine does not support renaming tables.');
+        throw new LaravelCassandraException('This database engine does not support renaming tables.');
     }
 
     public function setConsistency(Consistency $level): self {
@@ -363,7 +363,7 @@ class Builder extends BaseBuilder {
     protected function applyConsistency(): void {
 
         if (!$this->connection instanceof Connection) {
-            throw new RuntimeException('Invalid connection selected.');
+            throw new LaravelCassandraException('Invalid connection selected.');
         }
 
         if ($this->consistency) {
@@ -376,7 +376,7 @@ class Builder extends BaseBuilder {
     protected function applyIgnoreWarnings(): void {
 
         if (!$this->connection instanceof Connection) {
-            throw new RuntimeException('Invalid connection selected.');
+            throw new LaravelCassandraException('Invalid connection selected.');
         }
 
         if ($this->ignoreWarnings) {
